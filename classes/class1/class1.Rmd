@@ -1,0 +1,141 @@
+---
+title: "Class 1 - Methods 2"
+author: "Pernille Brams feat. Kathrine Schulz"
+date: "8/2/2024"
+output:
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Setting my root directory to where I have my /data folder etc. (easier for me, but personalise to your own way of working)
+knitr::opts_knit$set(root.dir = "/Users/pernillebrams/Desktop/AARHUS_UNIVERSITY/instructor_2024/methods-2")
+
+```
+
+### Setup
+```{r}
+# Make sure this guy is installed/updated (if you've alreadygot rstanarm installed, you just need to load it in using either library() or p_load() as below)
+install.packages("rstanarm")
+library(rstanarm)
+
+# Load the rest
+library(pacman)
+pacman::p_load(tidyverse,
+               ggpubr,
+               ggplot2,
+               stringr) # this time I'm just giving you the code
+```
+
+### Code from Chapter 1 (not exercises, just in-chapter)
+```{r}
+# Load data
+hibbs <- read.table("data/ElectionsEconomy/data/hibbs.dat", header = TRUE)
+
+# Make scatterplot
+plot(hibbs$growth, hibbs$vote, xlab="Average recent growth in personal income",
+ylab="Incumbent party's vote share")
+
+# Estimate regression y = a + bx + error
+M1 <- stan_glm(vote ~ growth, data=hibbs)
+
+# Add a fitted line to the graph
+abline(coef(M1), col="gray") # needs to be run with the plot() code above - running the whole chunk is the easiest way
+
+# Display the fitted model
+print(M1)
+
+```
+
+The first column shows estimates: 46.3 and 3.0 are the coefficients in the fitted line, y = 46.3 + 3.0x (see Figure 1.1b). The second column displays uncertainties in the estimates using median absolute deviations (see Section 5.3).
+
+The last line of output shows the estimate and uncertainty of σ, the scale of the variation in the data unexplained by the regression model (the scatter of the points above and below from the regression line). This is also referred to in the book as residual standard deviation, and it is (like we know 'standard deviation' from Methods 1) a measure of the typical distance that the observed values fall from the regression line.
+
+In Figure 1.1b, the linear model predicts vote share to roughly an accuracy of 3.9 percentage points. This means that on average, the actual values of the dependent variable (vote) deviate from the values predicted by the stan_glm model by about 3.9 percentage points.
+
+### Code for nicer looking plot
+```{r}
+
+# Basic plot with ggplot2
+ggplot(hibbs, aes(x = growth, y = vote)) +
+  geom_point() +  # Add points
+  labs(
+    x = "Average recent growth in personal income",
+    y = "Incumbent party's vote share",
+    title = "Relationship between Income Growth and Vote Share",
+    subtitle = "Data from Hibbs Dataset"
+  ) +
+  theme_minimal() +  # Use a minimal theme
+  theme(
+    plot.title = element_text(hjust = 0.5),  # Center the title
+    plot.subtitle = element_text(hjust = 0.5)  # Center the subtitle
+  ) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue")  # Add a linear regression line
+
+```
+
+# Exercises
+## Ex. 1.2
+Sketching a regression model and data: Figure 1.1b shows data corresponding to the fitted line y = 46.3 + 3.0x with residual standard deviation 3.9, and values of x ranging roughly from 0 to 4%.
+("Sketch" or "graph"= means simulate i.e. skething data means make some data yourself :) )
+
+### Ex. 1.2.a) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 3.9.
+
+### Ex. 1.2.b) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 10.
+
+### Ex. 1.5 Goals of regression: Give examples of applied statistics problems of interest to you in which the goals are:
+#### (a) Forecasting/classification
+
+#### (b) Exploring associations
+
+#### (c) Extrapolation
+
+#### (d) Causal inference
+
+### Ex. 2.3 Data processing: Go to the data folder Names, find the file allnames_clean.csv and use this to make a graph similar to Figure 2.8, but for girls. 
+
+### Ex. 2.7 (b) Reliability and validity: Give an example of a scenario of measurements that have reliability but not validity.
+
+# Pernille's additional notes to Chapter 1 in ROS (not mandatory to read at all)
+I probably wont keep making these notes this formatted but hey, here's to get you started on methods 2 transitioning from methods 1 :) They are just notes I took when skimming through the chapter.
+
+Some of the text below mentions a lot of new words. But e.g. learning what bayesian approaches are in detail are NOT the point of methods 2. So don't worry if it doesn't make sense yet. It's not supposed to, the focus is on Bayesian in Methods 3 and 4 - and see the TL;DR on the bottom of this doc.
+
+## The chapter
+The chapter basically explains why regression is cool: it's a method used to explore a relationship between a dependent variable and one or more independent ones. The basic idea is to find the best straight line that fits some data points. Once we have the line, and if it fits well (but not too well) we can use it to make predictions. For example, if you know someone's height (X), you can plug it into the equation Y = a+bX+e to predict their weight (Y).
+- Figure 1.1 in the book shows a) incumbent party's (i.e. the political party in power at time of election) vote share in some US elections, and b) a linear regression fit to these data.
+
+## Explanations to couple the chapter with Methods 1 and the cogsci bsc in general
+Note that the book uses the 'stan_glm' function to fit models. In Methods 1 we only used lm() and lmer(), and a few of you may have used glm() in your projects for e.g. logistic regressions or multinomial. 'stan_glm' is a function from the rstanarm package in R, which is used for *Bayesian generalized linear modeling.* The package allows for fitting of what we call Bayesian models using Stan, which is a programming language designed specifically for Bayesian modelling. It uses technique like Markov Chain Monte Carlo (MCMC) to sample from probability distributions. Don't think too hard about it- you'll learn more about the details of it. For now, we just use stan_glm() to fit lines to stuff.
+
+*1. So many new terms already!! What is the difference between "Frequentist" and "Bayesian" approaches?*
+Let's take lm() and stan_glm() as our two examples to explain this. The former is frequentist and proud, the latter Bayesian and proud.
+
+**Frequentist:**
+We can use lm() for linear regression. The lm() function estimates coefficients based on the data, aiming to minimise the error between the predicted and observed values (Methods 1 stuff). We express uncertainty in the lm() through confidence intervals and p-values, which are based on the concept of repeating an experiment indefinitely. The lm() cannot incorporate any prior knowledge, and as such, the analysis we can do with this one is based solely on the current data.
+
+**Bayesian (if you're curious to know. More will come in methods 4):**
+In the Bayesian framework, we can combine prior beliefs with the data we have at hand to update our knowledge about the estimates (in lm() we can only build a model on the data we have, so if the data are flawed or just straight up wrong, then we're doomed to build a really bad model).
+
+The function stan_glm() is the lm() counterpart, just in a Bayesian framework instead of frequentist. stan_glm() incorporates so-called "prior distributions" for the estimates and uses data to update these "beliefs", resulting in so-called "posterior distributions" (which is essentially our results; it is what the model returns to us after calculating a bunch of smart stuff for us using MCMC). In stan_glm, uncertainty is NOT expressed through p-values, but through "credible intervals" (confidence intervals better cousin) derived from the posterior distributions, providing a direct probabilistic interpretation.
+Prior Information: Integrates prior knowledge or beliefs through the use of prior distributions, which are then updated with the data.
+
+**1 What is the difference between confidence intervals and credible intervals?**
+- As we have seen in Methods 1, statisticians love giving names to things :)
+- One could explain the difference between the two in a very long monologue (cause they *are* fundamentally statistically different), but the key point is that a) the two terms come from two different frameworks of stats, but b) have the same overall purpose: Wider intervals (be it confidence or credible) generally indicate more uncertainty about a value. Narrow means we can be more certain about a value.
+
+*2. Why do we all of a sudden use 'stan_glm()' and not just good ol' lm()/lmer() from Methods 1?*
+The function 'stan_glm' and Bayesian models in general can be more flexible in handling complex models, such as those with non-normal error distributions or hierarchical structures, that go beyond the scope of lm() and lmer(). Furthermore, in cases with small sample sizes, rare events, or multicollinearity, Bayesian methods can give us more robust and reliable estimates. You'll use stan and bayesian in general a lot more on Methods 3 and 4, so look at the use of it here as a fancy but basically the same as lm()-work, letting you get a taste of the functions. When you run stan_glm(), you will see that it samples via MCMC, which is algorithms that sample from posterior distributions of the parameters. It offers full probabilistic inference for the model parameters, including credible intervals and posterior predictive checks, which can be more informative than point estimates and confidence intervals in traditional GLMs. If all this are new words to you, good - because we haven't taught you what all that means yet fully.
+
+*3. What is a generalised linear model (GLM) and how is it different from the lm() / lmer()'s we're used to from Methods 1?*
+A Generalised Linear Model (GLM) is "just" an extension of the traditional linear model (lm() in R for example) to accommodate response variables that are not normally distributed.
+
+You might remember that in lm(), the response is assumed to be a linear function of the predictors with normally distributed errors (remember the lovely assumption checks?). GLMs relax these constraints in two key ways:
+- Different distributions: GLMs allow for response variables to follow different distributions (like binomial for binary data (data with an outcome like TRUE/FALSE, SUCCESS/FAIL, etc.), the so-called Poisson distribution for count data (data with e.g. count of friends, count of seedlings from a field of plants, etc.).
+- Link function: GLMs use a so-called link function to model the relationship between the predictors and the mean of the response distribution. You'll learn more about what this is on later semesters, but the link function basically just converts (transforms) the expected value of some response variable so that it can be modeled as a linear combination of predictors, regardless of whatever scale / constraints it came from. In linear regression (lm()), we predict the response variable directly from a linear combination of predictors. However, for many types of data (like counts, binary outcomes), this direct prediction is not appropriate because the response variable has constraints (e.g., it must be positive, or between 0 and 1). So this is what we use link functions for - and this link function can be linear (like in lm()), logistic (for binary outcomes), log (for count data), etc.
+
+Now, the lmer() model as we know from Methods 1 extends lm() by allowing for both fixed and random effects. This is useful for hierarchical or grouped data as we've seen before (see slides from Methods 1 if you need a refresher on linear mixed effects models (lmers). Thing is that GLMs can ALSO be extended to include random effects (GLMMs), so doing GLMs is basically just a more flexible way of doing the stuff we did on Methods 1. It is also cooler. And more buzzwordy. 
+
+TL;DR: GLM/GLMMs can do everything lm() and lmer() can do, just better and you'll iteratively learn why it's better across Methods 2-3-4, trust me :) 
