@@ -4,6 +4,15 @@
 
 This course is about regression modelling and its conceptual and mathematical foundations. The main emphasis is on *linear* regression and the *general linear model* (GLM). After familiarizing ourselves with the broader context and goals of linear regression modelling in the first three weeks of the course, we turn to the mathematical foundations of this type (and many other types) of modelling: linear algebra and calculus. The concepts covered here are essential to understanding the methods underlying not just the modelling we use in this course but also the approaches introduced in later semesters. Once the mathematical groundwork is laid, we proceed to applying everything in practice. Ultimately this will take us to generalizations of the GLM like logistic regression.
 
+## Repo structure
+
+This repository has been initialised with the following directory structure:
+
+| Column | Description|
+|--------|:-----------|
+```classes``` | Instructions and folders for each of the practical classes. Has the folder ```data``` in it containing the data we will use in classes.
+```slides``` | Slides from lectures.
+
 ## Framework and tools
 
 In most practical applications, we will work in the framework of Bayesian inference, which will be introduced at the beginning. Thanks to the modern software tools at our disposal - [R](https://www.r-project.org/) and [Stan](https://mc-stan.org/) - this is much easier nowadays than it used to be. For conceptual and practical reasons, this is the approach of choice. However, for a deeper understanding, we will also cover the *ordinary least squares* (OLS) approach to model fitting.
