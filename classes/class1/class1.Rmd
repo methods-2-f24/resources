@@ -77,13 +77,34 @@ ggplot(hibbs, aes(x = growth, y = vote)) +
 ```
 
 # Exercises
-## Ex. 1.2
+These first exercises are about learning what simulating data is for.
+
+## Ex. 0.a): In 1-2 sentences (discuss w group or reflect on your own): What does it mean to simulate data?
+
+## Ex. 0.b): Specify some amount of data points (n), some mean and some sd, and use rnorm() to simulate this amount of data points based off of the mean and sd you've set. 
+```{r}
+set.seed(1998) # setting a seed (in the best year ever??) - this way, even though it's random, you'll get reproducible results next time you run this with this seed
+
+# rnorm() works like: my_simulated_data <- rnorm(n, mean, sd) - now you go!
+
+# your code here
+```
+
+## Ex. 0.c) Talk with your group and note in 1-2 sentences: What do we know of the data drawn from the rnorm()? 
+
+## Ex. 0.d) Data are worth 10000% more if visualised, so let's visualise. Using ggplot, make a histogram visualising the data you simulated.
+
+## Ex. 0.e) Calculate the empirical mean and empirical sd (just fancy words for "calculate the mean and sd of the simulated data") - are they different from the ones you've set? and why might that be?
+
+## Exercises from ROS
+### Ex. 1.2
 Sketching a regression model and data: Figure 1.1b shows data corresponding to the fitted line y = 46.3 + 3.0x with residual standard deviation 3.9, and values of x ranging roughly from 0 to 4%.
 ("Sketch" or "graph"= means simulate i.e. skething data means make some data yourself :) )
 
-### Ex. 1.2.a) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 3.9.
+#### Ex. 1.2.a) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 3.9.
+* If you're not sure how to approach this exercise, try and go by the piecemeal hint-intruction in the bottom of this doc :)
 
-### Ex. 1.2.b) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 10.
+#### Ex. 1.2.b) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 10.
 
 ### Ex. 1.5 Goals of regression: Give examples of applied statistics problems of interest to you in which the goals are:
 #### (a) Forecasting/classification
@@ -139,3 +160,21 @@ You might remember that in lm(), the response is assumed to be a linear function
 Now, the lmer() model as we know from Methods 1 extends lm() by allowing for both fixed and random effects. This is useful for hierarchical or grouped data as we've seen before (see slides from Methods 1 if you need a refresher on linear mixed effects models (lmers). Thing is that GLMs can ALSO be extended to include random effects (GLMMs), so doing GLMs is basically just a more flexible way of doing the stuff we did on Methods 1. It is also cooler. And more buzzwordy. 
 
 TL;DR: GLM/GLMMs can do everything lm() and lmer() can do, just better and you'll iteratively learn why it's better across Methods 2-3-4, trust me :) 
+
+## Piecemeal hints
+### Ex. 1.2a) stepwise-instruction
+The question says: Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 3.9. We're given a linear regression equation that specifies what y should be, and we're told what the x should be from and to in the question and the info from 1.2). Here's 8 smaller steps on how to solve it, step by step: 
+
+#### 1) First, define the regression model parameters (intercept, slope, error) (hint: just make variables called 'intercept' and so on and define the number)
+
+#### 3) Generate X values in the specified range using seq()
+
+#### 4) Calculate y values based on the given regression and your newly created x-values without the error term, which gives you the y get the perfect fit line
+
+#### 5) Add random error to the line we fit above: we can introduce variability by adding some normally distributed random errors to the y values. This can be done using rnorm() as in the 0-exercises, with mean 0 and standard deviation equal to the residual standard deviation (3.9) for instance.
+
+#### 6) Prepare data for plotting: get the x-values and y-values in a dataframe to prepare for plotting w. ggplot
+
+#### 7) Now, plot to check it out
+
+#### 8) Optional: Fit and review a regression model: As an additional step, you can fit a linear regression model to the generated data using stan_glm() or any other fitting function to see how closely the estimated parameters match the ones used to generate the data. 
