@@ -171,7 +171,8 @@ The question says: Sketch hypothetical data with the same range of x but corresp
 
 #### 4) Calculate y values based on the given regression and your newly created x-values without the error term, which gives you the y get the perfect fit line
 
-#### 5) Add random error to the line we fit above: we can introduce variability by adding some normally distributed random errors to the y values. This can be done using rnorm() as in the 0-exercises, with mean 0 and standard deviation equal to the residual standard deviation (3.9) for instance.
+#### 5) Add random error to the line we fit above: we can introduce variability by adding some normally distributed random errors to the y value
+s. This can be done using rnorm() as in the 0-exercises, with mean 0 and standard deviation equal to the residual standard deviation (3.9) for instance.
 
 #### 6) Prepare data for plotting: get the x-values and y-values in a dataframe to prepare for plotting w. ggplot
 
