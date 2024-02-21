@@ -1,5 +1,5 @@
 ---
-title: "Week 2 solutions"
+title: "Week 2"
 author: "Pernille Brams feat. Kathrine Schultz-Nielsen"
 date: "22/2/2024"
 output:
