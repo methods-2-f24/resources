@@ -1,0 +1,248 @@
+---
+title: "Week 2"
+author: "Pernille Brams feat. Kathrine Schultz-Nielsen"
+date: "22/2/2024"
+output:
+  html_document:
+    toc: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Setting my root directory to where I have my /data folder etc. (easier for me, but personalise to your own way of working)
+knitr::opts_knit$set(root.dir = "/Users/pernillebrams/Desktop/AARHUS_UNIVERSITY/instructor_2024/methods-2")
+
+```
+
+```{r libs}
+library(pacman)
+
+pacman::p_load(tidyverse,
+               ggpubr)
+
+```
+
+# Learning about for loops, if-else statements, functions - and practicing simulating!
+(Lots of stuff in chapter 4-5 about this)
+
+Loops can be good for simulating. And they are cool. Let's practice is a bit.
+
+## Exercises to practise loops (discuss with partner/group if you want to)
+### Ex. A: What is the difference between a for- and a while loop? Explain in your own words in 1-2 sentences.
+
+### Ex. B: When would you use for-loops and when would you use while-loops? Explain in your own words in 1-2 sentences
+
+### Ex. C: Create and run both a simple for and a while loop
+I've made an example below. Make your own example below it. If you have no ideas for what to code in your for loop, here's an example you can try to code up:
+- A simple for loop could be for each i in 1:20, print i if i is above 3
+```{r}
+# Here's a simple for-loop
+for (i in 1:10){ # For each i in 1:10...
+  print(i+5)    # Do this..
+}
+
+# your simple loop here
+```
+
+I've also made an example of a while loop below. Make your own example below it. If you have no ideas for what to code in your while loop, here's an example you can try to code up:
+- A simple while loop could be while some_number is below 20, print("the number is below 20, so I still run! (until it isn't true anymore)". Each time it 'checks' make sure to add some number to the some_number - could be 7
+```{r}
+# A simple while-loop
+number = 0
+while (number < 10){ # While the number is below 10, do the following
+  print(number)
+  number = number + 1
+}
+
+# your simple while-loop here
+```
+
+## Exercises to practise functions and if-else statements
+### Ex. D: Write a function in R that converts temperature from Fahrenheit to Celsius.
+Create a function that accepts a temperature in Fahrenheit and returns the temperature converted to Celsius. The formula to convert Fahrenheit to Celsius is: C = (F-32)*5/9.
+```{r}
+# Function to convert Fahrenheit to Celsius
+convert_to_celsius <- function(fahrenheit) {
+  # Your code here
+  # Hint: Apply the conversion formula within the function
+}
+
+# Example of how the final function (when you've written it) should be used:
+# temp_celsius <- convert_to_celsius(68)
+# print(temp_celsius)
+# Expected Output (for fahrenheit = 68): 20
+```
+
+### Ex. E: Write a function in R that provides clothing advice based on the temperature:
+Create a function that accepts the current temperature (in Celsius) as an argument and returns advice on what type of clothing to wear. The function should use if-else statements to determine the appropriate clothing advice.
+
+Here's the advice that your function should give based on the conditions:
+
+If the temperature is above 25 degrees Celsius, suggest wearing a T-shirt.
+If the temperature is between 15 and 25 degrees (inclusive), suggest wearing a light jacket.
+If the temperature is below 15 degrees, suggest wearing a warm coat.
+
+Use statements if, else if, and else. Google how to set up the syntax with curly brackets and so on if you're not sure.
+```{r}
+# Function to give clothing advice based on temperature
+clothing_advice <- function(temperature) {
+  # Your code here
+  # Hint: Use if-else statements to check the temperature and return the advice
+}
+
+# Example of how the final function (when you've written it) should be used:
+# advice <- clothing_advice(20)
+# print(advice)
+# Expected Output (for temperature = 20): "Wear a light jacket."
+
+```
+
+## Exercises from the book
+
+## Ex. 0: Write up / copy the code found on page 69-70 in chapter 5 ROS and note whats going on at each step. The book explains it - so just go through it and discuss with your group to understand whats going on.
+
+### Ex. 5.1 Discrete probability simulation: Suppose that a basketball player has a 60% chance of making a shot, and he keeps taking shots until he misses two in a row. Also assume his shots are independent (so that each shot has 60% probability of success, no matter what happened before).
+* Hint 3 and 4
+
+#### Ex. 5.1.a) Write an R function to simulate this process.
+Here's some notes to get you started: 
+
+- We're told that the basketball player has 60% chance of making the shot
+- We're told he keeps shooting until missing two in a row
+- We're also told to assume that his shots are independent, all having 60% of probability of success
+
+To simulate the process we can list the variables that we'll need to record based on what we're told: 
+We need to record: 
+- probability of making the shot
+- number of misses in a row (we need something that can count it because we know he stops when missing 2)
+- number of hits in a row (to see how many he gets)
+- shots taken
+
+Let's try and write a function:
+```{r}
+# Function to simulate basketball player
+basketball <- function(){ # starting the function for you
+  
+  # your code here
+  
+}
+# Example usage of the function, when done
+# basket_sim <- basketball(printing = TRUE)
+
+```
+
+#### Ex. 5.1.b) Put the R function in a loop to simulate the process 1000 times. Use the simulation to estimate the mean and standard deviation of the total number of shots that the player will take, and plot a histogram representing the distribution of this random variable. 
+```{r}
+# your code here
+```
+
+#### Ex. 5.1.c) Using your simulations, make a scatterplot of the number of shots the player will take and the proportion of shots that are successes.
+```{r}
+# your code here
+```
+
+### Ex. 5.3: Binomial distribution: A player takes 10 basketball shots, with a 40% probability of making each shot. Assume the outcomes of the shots are independent.
+#### Ex. 5.3.a) Write a line of R code to compute the probability that the player makes exactly 3 of the 10 shots.
+```{r}
+# your code here
+```
+
+#### Ex. 5.3.b) Write an R function to simulate the 10 shots. Loop this function 10 000 times and check that your simulated probability of making exactly 3 shots is close to the exact probability computed in (a).
+```{r}
+# your code here
+```
+
+## Ex. 5.4: Demonstration of the Central Limit Theorem: Let x = x1 + · · · + x20, the sum of 20 independent uniform(0, 1) random variables. In R, create 1000 simulations of x and plot their histogram. What is the normal approximation to this distribution provided by the Central Limit Theorem? Overlay a graph of the normal density on top of the histogram. Comment on any differences between the histogram and the curve.
+
+(Recall the Central limit theorem (CLT) on the bottom of page 51 and from Methods 1)
+```{r}
+# your code here
+```
+
+## Ex. 5.5: Distribution of averages and differences: The heights of men in the United States are approximately normally distributed with mean 69.1 inches and standard deviation 2.9 inches. The heights of women are approximately normally distributed with mean 63.7 inches and standard deviation 2.7 inches. Let x be the average height of 100 randomly sampled men, and y be the average height of 100 randomly sampled women. In R, create 1000 simulations of x − y and plot their histogram. Using the simulations, compute the mean and standard deviation of the distribution of x − y and compare to their exact values.
+*Hint 1
+
+```{r}
+# your code here
+```
+
+## Ex. 5.8: Coverage of confidence intervals: On page 15 there is a discussion of an experimental study of an education-related intervention in Jamaica, in which the point estimate of the treatment effect, on the log scale, was 0.35 with a standard error of 0.17. Suppose the true effect is 0.10 — this seems more realistic than the point estimate of 0.35 — so that the treatment on average would increase earnings by 0.10 on the log scale. Use simulation to study the statistical properties of this experiment, assuming the standard error is 0.17.
+*Hint 2
+
+```{r}
+# your code here
+```
+
+#### Ex. 5.8.a) Simulate 1000 independent replications of the experiment assuming that the point estimate is normally distributed with mean 0.10 and standard deviation 0.17.
+(In the experiment on page 15, we see n = 127 children)
+```{r}
+# your code here
+```
+
+#### Ex. 5.8.b) For each replication, compute the 95% confidence interval. Check how many of these intervals include the true parameter value.
+```{r}
+# your code here
+```
+
+#### Ex. 5.9: Coverage of confidence intervals after selection on statistical significance: Take your 1000 simulations from Exercise 5.8, and select just the ones where the estimate is statistically significantly different from zero. Compute the average and standard deviation of the selected point estimates. Compare these to the result from Exercise 5.8.
+```{r}
+# your code here
+```
+
+# Hints
+### Hint 1 (for 5.5)
+If you get that far, use that 
+$$
+\rho_{X, Y}=\operatorname{corr}(X, Y)=\frac{\operatorname{cov}(X, Y)}{\sigma_X \sigma_Y}
+$$
+### Hint 2 (for 5.8)
+If you are stuck figuring out how to find confidence intervals in R have a look here:
+https://www.geeksforgeeks.org/how-to-find-confidence-intervals-in-r/
+
+### Hints for 5.1:
+Hint 3: Think about what distribution we'll use to simulate from when it's a basketball hit we're talking about here (success/fail type outcome). Rhymes with minomial.
+Hint 4: Think about the two loops we have learnt about. When this guy keeps shooting UNTIL something happens (i.e. while something is true), what loop should we use?
+
+# Extra exercises to practice making functions in R + discussing questions
+
+### Prime number checker
+A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself. The function should take one argument, which is the number to check, and return TRUE if the number is prime and FALSE otherwise.
+
+#### Ex. 1: Write a function in R that checks whether a given number is a prime number
+```{r}
+# Function to check if a number is prime
+is_prime <- function(number) {
+  # Your code here
+  # Hint: You may use a while-loop or a for-loop to test divisibility
+  # Remember to handle edge cases like numbers less than 2
+}
+
+# Example usage:
+# result <- is_prime(29)
+# print(result)
+# Expected Output (for number = 29): TRUE
+```
+
+### Fibonacci
+The Fibonacci sequence is a series of numbers where the next number is found by adding up the two numbers before it. The sequence commonly starts with 0 and 1. The function should take one argument, n, which represents the length of the sequence to generate.
+
+#### Ex. 2: Fibonacci Sequence Generator: Write a function in R that generates the Fibonacci sequence up to the n-th term.
+```{r}
+# Function to generate Fibonacci sequence
+generate_fibonacci <- function(n) {
+  # Your code here
+  # Hint: Initialize the sequence with the first two numbers, then use a for-loop to generate the rest
+}
+
+# Example usage:
+# fibonacci_sequence <- generate_fibonacci(10)
+# print(fibonacci_sequence)
+# Expected Output (for n = 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+```
+
+## Discuss question 1: Consider the study of ovulation and political attitudes on pp. 62-63. Why is this study flawed. Discuss with your neighbor :)
+
+## Discuss question 2: What are the authors 3 suggestions to avoid over-interpretation of noise?
+
+## Optional: If you want more exercises from chapter 4 try 4.1 and 4.2 Hint: In 4.2 use the proportions 50/50 or those given in the example in section "Standard error for a comparison" on pp. 52-53

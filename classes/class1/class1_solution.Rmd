@@ -1,0 +1,363 @@
+---
+title: "Class 1 - Methods 2"
+author: "Pernille Brams"
+date: "8/2/2024"
+output:
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Setting my root directory to where I have my /data folder etc. (easier for me, but personalise to your own way of working)
+knitr::opts_knit$set(root.dir = "/Users/pernillebrams/Desktop/AARHUS_UNIVERSITY/instructor_2024/methods-2")
+
+```
+
+### Setup
+```{r}
+# Make sure this guy is installed/updated
+install.packages("rstanarm")
+library(rstanarm)
+
+# Load the rest
+library(pacman)
+pacman::p_load(tidyverse,
+               ggpubr,
+               ggplot2,
+               stringr)
+```
+
+### Code from Chapter 1 (not exercises, just in-chapter)
+```{r}
+# Load data
+hibbs <- read.table("data/ElectionsEconomy/data/hibbs.dat", header = TRUE)
+
+# Make scatterplot
+plot(hibbs$growth, hibbs$vote, xlab="Average recent growth in personal income",
+ylab="Incumbent party's vote share")
+
+# Estimate regression y = a + bx + error
+M1 <- stan_glm(vote ~ growth, data=hibbs)
+
+# Add a fitted line to the graph
+abline(coef(M1), col="gray") # needs to be run with the plot() code above - running the whole chunk is the easiest way
+
+# Display the fitted model
+print(M1)
+
+```
+The first column shows estimates: 46.3 and 3.0 are the coefficients in the fitted line, y = 46.3 + 3.0x (see Figure 1.1b). The second column displays uncertainties in the estimates using median absolute deviations (see Section 5.3).
+
+The last line of output shows the estimate and uncertainty of σ, the scale of the variation in the data unexplained by the regression model (the scatter of the points above and below from the regression line). This is also referred to in the book as residual standard deviation, and it is (like we know 'standard deviation' from Methods 1) a measure of the typical distance that the observed values fall from the regression line.
+
+In Figure 1.1b, the linear model predicts vote share to roughly an accuracy of 3.9 percentage points. This means that on average, the actual values of the dependent variable (vote) deviate from the values predicted by the stan_glm model by about 3.9 percentage points.
+
+### Code for nicer looking plot
+```{r}
+
+# Basic plot with ggplot2
+ggplot(hibbs, aes(x = growth, y = vote)) +
+  geom_point() +  # Add points
+  labs(
+    x = "Average recent growth in personal income",
+    y = "Incumbent party's vote share",
+    title = "Relationship between Income Growth and Vote Share",
+    subtitle = "Data from Hibbs Dataset"
+  ) +
+  theme_minimal() +  # Use a minimal theme
+  theme(
+    plot.title = element_text(hjust = 0.5),  # Center the title
+    plot.subtitle = element_text(hjust = 0.5)  # Center the subtitle
+  ) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue")  # Add a linear regression line
+
+```
+
+# Exercises
+These first exercises are about learning what simulating data is for.
+
+## Ex. 0.a): In 1-2 sentences: What does it mean to simulate data?
+Simulating data involves generating artificial datasets based on specified statistical models or distributions, allowing researchers to study the properties or behavior of statistical methods under controlled conditions.
+
+## Ex. 0.b): Specify some amount of data points (n), some mean and some sd, and use rnorm() to simulate this amount of data points based off of the mean and sd you've set. 
+```{r}
+set.seed(1998) # setting a seed (in the best year ever??) - this way, even though it's random, you'll get reproducible results next time you run this with this seed
+
+# rnorm() works like: my_simulated_data <- rnorm(n, mean, sd) - now you go!
+
+# Specifying my stuff
+n <- 1000 # Number of points
+mean <- 50 # Specified mean
+sd <- 10 # Specified standard deviation
+data <- rnorm(n, mean, sd) # Generate random data
+
+```
+
+## Ex. 0.c) Talk with your group and note in 1-2 sentences: What do we know of the data drawn from the rnorm()? 
+Data drawn from the rnorm() function in R are pseudo-random samples from a normal distribution, characterized by a user-specified mean (μ) and standard deviation (σ), which determine the central tendency and spread of the generated data, respectively.
+
+## Ex. 0.d) Data are worth 10000% more if visualised, so let's visualise. Using ggplot, make a histogram visualising the data you simulated.
+```{r}
+# Making a plot
+ggplot(data.frame(x = data), aes(x)) + 
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", color = "black") +
+  geom_density(alpha = .2, fill = "#FF6666") +
+  labs(title = "Histogram of Simulated Data", x = "Value", y = "Density")
+
+```
+
+## Ex. 0.e) Calculate the empirical mean and empirical sd (just fancy words for "calculate the mean and sd of the simulated data") - are they different from the ones you've set? and why might that be?
+```{r}
+# Get empirical stuff
+mean(data) # 50.0574
+sd(data)   # 10.29745
+```
+They're close to what I set. Would probably be closer to what I actually set with a larger n because of the law of large numbers (LLN): The LLN states that as the size of the sample (n) increases, the sample mean will get closer to the expected value (population mean) as we learnt on methods 1. In the context of our simulation here, this means that as you generate more data points using rnorm(), the empirical mean of the generated dataset will more closely approximate the specified mean (μ = 50). Similarly, the empirical standard deviation should also more closely match the specified standard deviation (σ = 10) as the sample size increases. The LLN assures convergence in a probabilistic sense of averages and other statistics to their expected values as sample sizes grow.
+
+So the reason the two empirical numbers here may not reflect totally what we set before is due to stochasticity and a small sample size (a small n).
+
+## Exercises from ROS
+### Ex. 1.2
+Sketching a regression model and data: Figure 1.1b shows data corresponding to the fitted line y = 46.3 + 3.0x with residual standard deviation 3.9, and values of x ranging roughly from 0 to 4%.
+
+#### Ex. 1.2.a) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 3.9.
+```{r}
+# See the range of x
+summary(hibbs$growth) # roughly 0 to 4%
+
+# Let's write down what we know. We're given the linear relationship, and we know what the residual standard deviation should be: 
+intercept = 30
+slope = 10
+residual_sd = 3.9
+
+# Now, let's generate some x-values in the same range as the real data (0 to 4 roughly), since the question asks for 'same range of x'
+x_values <- seq(0, 4, length.out = 1000)  # x ranging from 0 to 4%, getting 100 points
+
+# Now, we can calculate some y values based on the line we're given (we will add the error term shortly)
+y_values_line <- intercept + slope * x_values
+
+# Generate hypothetical data with the same residual standard deviation
+# We can do this by adding normally distributed random errors with standard deviation of 3.9
+set.seed(123)  # for reproducibility
+
+y_values_data <- y_values_line + rnorm(length(x_values), mean = 0, sd = residual_sd)
+
+# Create dataframe for ggplot
+data <- data.frame(
+  x = x_values,            # our x-values between 0 and 4
+  y_line = y_values_line,  # y-data with line
+  y_data = y_values_data   # y-data with error 
+)
+
+# Now, let's plot
+p <- ggplot(data, aes(x = x)) +
+  geom_point(aes(y = y_data), alpha = 0.6, color = 'blue') +  # Plotting the data points
+  geom_line(aes(y = y_line), color = 'black') +  # Plotting the regression line
+  labs(
+    x = 'Average recent growth in personal income (%)',
+    y = "Incumbent party's vote share",
+    title = 'Hypothetical data and fitted line',
+    subtitle = 'Fitted line: y = 30 + 10x'
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  geom_smooth(aes(y = y_data), method = "lm", se = FALSE, color = "black")  # Ensure the correct y aesthetic is used
+
+# Display the plot
+p
+
+# Fit a model for fun to see
+M12a <- stan_glm(y_data ~ x, data = data, refresh = 0)
+
+print(M12a) # We see 3.9 under sigma indeed
+```
+
+#### Ex. 1.2.b) Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 10.
+```{r}
+# Copying most of the code used in 1.2.a)
+
+# Writing down what we know
+intercept = 30
+slope = 10
+residual_sd = 10 # Not 3.9 now, but 10
+
+# Generate x-values like before
+x_values <- seq(0, 4, length.out = 1000)
+
+# Calculate some y values based on the line we're given (we will add the error term shortly)
+y_values_line <- intercept + slope * x_values
+
+# Generate hypothetical data with the same residual standard deviation by adding normally distributed random errors with standard deviation of 10
+set.seed(123)  # for reproducibility
+
+y_values_data <- y_values_line + rnorm(length(x_values), mean = 0, sd = residual_sd)
+
+# Create dataframe for ggplot
+data <- data.frame(
+  x = x_values,            # our x-values between 0 and 4
+  y_line = y_values_line,  # y-data with line
+  y_data = y_values_data   # y-data with error 
+)
+
+# Now, let's plot
+p <- ggplot(data, aes(x = x)) +
+  geom_point(aes(y = y_data), alpha = 0.6, color = 'blue') +  # Plotting the data points
+  geom_line(aes(y = y_line), color = 'black') +  # Plotting the regression line
+  labs(
+    x = 'Average recent growth in personal income (%)',
+    y = "Incumbent party's vote share",
+    title = 'Hypothetical data and fitted line',
+    subtitle = 'Fitted line: y = 30 + 10x'
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  geom_smooth(aes(y = y_data), method = "lm", se = FALSE, color = "black")  # Ensure the correct y aesthetic is used
+
+# Display the plot
+p
+
+# Fit a model for fun to see
+M12b <- stan_glm(y_data ~ x, data = data, refresh = 0)
+
+print(M12b) # We see ~10 under sigma indeed
+```
+### Ex. 1.5 Goals of regression: Give examples of applied statistics problems of interest to you in which the goals are:
+#### (a) Forecasting/classification
+- Forecasting stock prices
+- Classifying gene expressions
+- In CogSci: whether some stimuli can predict a behavioral or neural outcome
+
+#### (b) Exploring associations
+- Could be association between global temperature and green house gas emissions
+- Association between effect of new teaching strategy 
+
+#### (c) Extrapolation
+- Prediction of future height in kids (could just be a linear extrapolation), using measures and regression fits to predict future outcomes
+
+#### (d) Causal inference
+- Does a drug or treatment have an effect compared to a control group, e.g. does caffeine actually impact your recall or did placebo have the same effect
+
+### Ex. 2.3 Data processing: Go to the data folder Names and make a graph similar to Figure 2.8, but for girls.
+Figure 2.8 shows trends of boys' names ending in each letters, showing an increase in percentage of boys names ending with the letter N. The question here asks us to do the same for girls, so we need to: 
+- first make a data set with only females
+- find a way to get the last letter from the column that has the name in full length, and e.g. put it in a new column
+- make a plot with a line for each letter, and the same axes as in figure 2.8
+```{r}
+# Get the data in (says in the book where it is)
+allnames_clean <- read.csv("data/Names/data/allnames_clean.csv")
+
+# Check out what the variables are called
+colnames(allnames_clean)
+unique(allnames_clean$sex)
+
+# Get only females
+female_names <- allnames_clean %>% filter(sex == 'F')
+
+# Get the last letter in their name
+female_names <- female_names %>% 
+                # Making a col called last_letter
+                mutate(last_letter = str_sub(female_names$name, -1))  
+
+# Convert the new col to a factor
+female_names <- female_names %>% mutate(last_letter = as.factor(last_letter))
+
+colnames(female_names)
+
+# Get years. The cols that are years start with X and have 4 digits after, so we can grab them using grep() and some regular expression magic
+years <- grep("^X\\d{4}$", names(female_names), value = TRUE)
+
+# Now, for each letter, let's summarise number of those per year
+sums <- female_names %>% group_by(last_letter) %>% summarise_at(years, sum, na.rm = TRUE)
+
+# Let's turn these counts (frequencies) into percentages, cause we need that for the plot. We can do this with a function
+freq_to_perc <- function(x, na.rm = TRUE) (x/sum(x))*100
+
+percentage_names_f<- mutate_at(sums, 
+                               years, 
+                               freq_to_perc)
+
+# Pivot longer because it's nicer - we want one row for each year with each letter
+long_df <- pivot_longer(percentage_names_f, cols = years, names_to = "Year", values_to = "number")
+
+long_df <- long_df %>% mutate(Year = as.factor(Year))
+long_df <- long_df %>% mutate(Year = as.numeric(Year))
+
+# It goes to 1 instead of starting at 1880, so I'll add 1878 to all for a quick fix
+long_df$Year <- long_df$Year+1879
+max(long_df$Year) # Max should be 2010, min should be 1880
+
+# Finally we can PLOT
+long_df %>% 
+  ggplot(aes(x = Year, y = number, col = last_letter, group = last_letter)) + 
+  geom_line() + 
+  labs(y = "Percentage of girls born with letter", 
+       title = "Overview of % girls born with a specific last letter each year", 
+       x = "Years") +  
+  scale_x_continuous() + 
+  theme(axis.text.x = element_text(angle = -45),
+        plot.title = element_text(face = "bold")) # Makes title bold
+
+```
+
+### Ex. 2.7 (b) Reliability and validity: Give an example of a scenario of measurements that have reliability but not validity.
+A scale that measure 5 kgs off: it is reliable in the sense that it WILL measure the same every time, however the measure is invalid, as it will be 5 kgs off always.
+
+# Pernille's additional notes to Chapter 1 in ROS
+I probably wont keep making these notes this formatted but hey, here's to get you started on methods 2 transitioning from methods 1 :) Some of the text below mentions a lot of new words. But e.g. learning what bayesian approaches are in detail are NOT the point of methods 2. So don't worry if it doesn't make sense yet. It's not supposed to, the focus is on Bayesian in Methods 3 and 4 - and see the TL;DR on the bottom of this doc.
+
+## The chapter
+- The chapter basically explains why regression is cool: it's a method used to explore a relationship between a dependent variable and one or more independent. The basic idea is to find the best straight line that fits some data points. Once we have the line, and if it fits well (but not too well) we can use it to make predictions. For example, if you know someone's height (X), you can plug it into the equation Y = a+bX+e to predict their weight (Y).
+- Figure 1.1 shows a) incumbent party's (political party in power at time of election) vote share in some US elections, and b) a linear regression fit to these data.
+
+## Explanations to couple the chapter with Methods 1 and the cogsci bsc in general
+Note that the book uses the weird 'stan_glm' function to fit models. In Methods 1 we only used lm() and lmer(), and a few of you may have used glm() in your projects for e.g. logistic regressions or multinomial. 'stan_glm' is a function from the rstanarm package in R, which is used for *Bayesian generalized linear modeling.* The package allows for fitting of what we call Bayesian models using Stan, which is a programming language designed specifically for Bayesian modelling. It uses technique like Markov Chain Monte Carlo (MCMC) to sample from probability distributions.
+
+*1. So many new terms already!! What is the difference between "Frequentist" and "Bayesian" approaches?*
+Let's take lm() and stan_glm() as our two examples to explain this. The former is frequentist and proud, the latter Bayesian and proud.
+
+**Frequentist:**
+We can use lm() for linear regression. The lm() function estimates coefficients based on the data, aiming to minimise the error between the predicted and observed values (Methods 1 stuff). We express uncertainty in the lm() through confidence intervals and p-values, which are based on the concept of repeating an experiment indefinitely. The lm() cannot incorporate any prior knowledge, and as such, the analysis we can do with this one is based solely on the current data.
+
+**Bayesian:**
+In the Bayesian framework, we can combine prior beliefs with the data we have at hand to update our knowledge about the estimates (in lm() we can only build a model on the data we have, so if the data are flawed or just straight up wrong, then we're doomed to build a really bad model).
+
+The function stan_glm() is the lm() counterpart, just in a Bayesian framework instead of frequentist. stan_glm() incorporates so-called "prior distributions" for the estimates and uses data to update these "beliefs", resulting in so-called "posterior distributions" (which is essentially our results; it is what the model returns to us after calculating a bunch of smart stuff for us using MCMC). In stan_glm, uncertainty is NOT expressed through p-values, but through "credible intervals" (confidence intervals better cousin) derived from the posterior distributions, providing a direct probabilistic interpretation.
+Prior Information: Integrates prior knowledge or beliefs through the use of prior distributions, which are then updated with the data.
+
+**1.1 What is the difference between confidence intervals and credible intervals?**
+- As we have seen in Methods 1, statisticians love giving names to things :)
+- One could explain the difference between the two in a very long monologue (cause they *are* fundamentally statistically different), but the key point is that a) the two terms come from two different frameworks of stats, but b) have the same overall purpose: Wider intervals (be it confidence or credible) generally indicate more uncertainty about a value. Narrow means we can be more certain about a value.
+
+*2. Why do we all of a sudden use 'stan_glm()' and not just good ol' lm()/lmer() from Methods 1?*
+The function 'stan_glm' and Bayesian models in general can be more flexible in handling complex models, such as those with non-normal error distributions or hierarchical structures, that go beyond the scope of lm() and lmer(). Furthermore, in cases with small sample sizes, rare events, or multicollinearity, Bayesian methods can give us more robust and reliable estimates. You'll use stan and bayesian in general a lot more on Methods 3 and 4, so look at the use of it here as a fancy but basically the same as lm()-work, letting you get a taste of the functions. When you run stan_glm(), you will see that it samples via MCMC, which is algorithms that sample from posterior distributions of the parameters. It offers full probabilistic inference for the model parameters, including credible intervals and posterior predictive checks, which can be more informative than point estimates and confidence intervals in traditional GLMs. If all this are new words to you, good - because we haven't taught you what all that means yet :-) 
+
+*3. What is a generalised linear model (GLM) and how is it different from the lm() / lmer()'s we're used to from Methods 1?*
+A Generalised Linear Model (GLM) is "just" an extension of the traditional linear model (lm() in R for example) to accommodate response variables that are not normally distributed.
+
+You might remember that in lm(), the response is assumed to be a linear function of the predictors with normally distributed errors (remember the lovely assumption checks?). GLMs relax these constraints in two key ways:
+- Different distributions: GLMs allow for response variables to follow different distributions (like binomial for binary data (data with an outcome like TRUE/FALSE, SUCCESS/FAIL, etc.), the so-called Poisson distribution for count data (data with e.g. count of friends, count of seedlings from a field of plants, etc.).
+- Link function: GLMs use a so-called link function to model the relationship between the predictors and the mean of the response distribution. You'll learn more about what this is on later semesters, but the link function basically just converts (transforms) the expected value of some response variable so that it can be modeled as a linear combination of predictors, regardless of whatever scale / constraints it came from. In linear regression (lm()), we predict the response variable directly from a linear combination of predictors. However, for many types of data (like counts, binary outcomes), this direct prediction is not appropriate because the response variable has constraints (e.g., it must be positive, or between 0 and 1). So this is what we use link functions for - and this link function can be linear (like in lm()), logistic (for binary outcomes), log (for count data), etc.
+
+Now, the lmer() model as we know from Methods 1 extends lm() by allowing for both fixed and random effects. This is useful for hierarchical or grouped data as we've seen before (see slides from Methods 1 if you need a refresher on linear mixed effects models (lmers). Thing is that GLMs can ALSO be extended to include random effects (GLMMs), so doing GLMs is basically just a more flexible way of doing the stuff we did on Methods 1. It is also cooler. And more buzzwordy. 
+
+TL;DR: GLM/GLMMs can do everything lm() and lmer() can do, just better and you'll iteratively learn why it's better across Methods 2-3-4, trust me :) 
+
+## Piecemeal hints
+### Ex. 1.2a) stepwise-instruction
+The question says: Sketch hypothetical data with the same range of x but corresponding to the line y = 30 + 10x with residual standard deviation 3.9. We're given a linear regression equation that specifies what y should be, and we're told what the x should be from and to in the question and the info from 1.2). Here's 8 smaller steps on how to solve it, step by step: 
+
+#### 1) First, define the regression model parameters (intercept, slope, error) (hint: just make variables called 'intercept' and so on and define the number)
+
+#### 3) Generate X values in the specified range using seq()
+
+#### 4) Calculate y values based on the given regression and your newly created x-values without the error term, which gives you the y get the perfect fit line
+
+#### 5) Add random error to the line we fit above: we can introduce variability by adding some normally distributed random errors to the y values. This can be done using rnorm() as in the 0-exercises, with mean 0 and standard deviation equal to the residual standard deviation (3.9) for instance.
+
+#### 6) Prepare data for plotting: get the x-values and y-values in a dataframe to prepare for plotting w. ggplot
+
+#### 7) Now, plot to check it out
+
+#### 8) Optional: Fit and review a regression model: As an additional step, you can fit a linear regression model to the generated data using stan_glm() or any other fitting function to see how closely the estimated parameters match the ones used to generate the data. 
