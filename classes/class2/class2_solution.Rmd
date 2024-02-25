@@ -1,0 +1,488 @@
+---
+title: "Week 2 solutions"
+author: "Pernille Brams feat. Kathrine Schultz-Nielsen"
+date: "22/2/2024"
+output:
+  html_document:
+    toc: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Setting my root directory to where I have my /data folder etc. (easier for me, but personalise to your own way of working)
+knitr::opts_knit$set(root.dir = "/Users/pernillebrams/Desktop/AARHUS_UNIVERSITY/instructor_2024/methods-2")
+
+```
+
+```{r libs}
+library(pacman)
+
+pacman::p_load(tidyverse,
+               ggpubr)
+
+```
+
+# Learning about for loops, if-else statements, functions - and practicing simulating!
+(Lots of stuff in chapter 4-5 about this)
+
+Loops can be good for simulating. And they are cool. Let's practice is a bit.
+
+## Exercises to practise loops
+### Ex. A: What is the difference between a for- and a while loop? Explain in your own words.
+A for loop runs for a predetermined number of times, iterating over a sequence, while a while loop runs until a certain condition is no longer true, which could be an indefinite number of times.
+
+### Ex. B: When would you use for-loops and when would you use while-loops?
+Use for loops when you know in advance how many times the loop should run, typically over a known sequence of items; use while loops when the number of iterations is not known in advance and you want to continue looping as long as a condition is met.
+
+### Ex. C: Create and run both a simple for and a while loop
+```{r}
+# A simple for-loop
+for (i in 1:10){ # For each i in 1:10, do the following
+  print(i+5)
+}
+
+# A simple while-loop
+number = 0
+while (number < 10){ # While the number is below 10, do the following
+  print(number)
+  number = number + 1
+}
+```
+## Exercises to practise functions and if-else statements
+### Ex. D: Write a function in R that converts temperature from Fahrenheit to Celsius.
+Create a function that accepts a temperature in Fahrenheit and returns the temperature converted to Celsius. The formula to convert Fahrenheit to Celsius is: C = (F-32)*5/9.
+```{r}
+# Function to convert Fahrenheit to Celsius
+convert_to_celsius <- function(fahrenheit) {
+  # Your code here
+  # Hint: Apply the conversion formula within the function
+}
+
+# Example usage:
+# temp_celsius <- convert_to_celsius(68)
+# print(temp_celsius)
+# Expected Output (for fahrenheit = 68): 20
+```
+
+Solution:
+```{r}
+# Function to convert Fahrenheit to Celsius
+convert_to_celsius <- function(fahrenheit) {
+  celsius <- (fahrenheit - 32) * 5/9
+  return(celsius)
+}
+
+# Example usage:
+temp_celsius <- convert_to_celsius(68)
+print(temp_celsius)
+
+```
+
+### Ex. E: Write a function in R that provides clothing advice based on the temperature:
+Create a function that accepts the current temperature (in Celsius) as an argument and returns advice on what type of clothing to wear. The function should use if-else statements to determine the appropriate clothing advice.
+
+If the temperature is above 25 degrees Celsius, suggest wearing a T-shirt.
+If the temperature is between 15 and 25 degrees (inclusive), suggest wearing a light jacket.
+If the temperature is below 15 degrees, suggest wearing a warm coat.
+
+Use statements if, else if, and else. Google how to set up the syntax with curly brackets and so on if you're not sure.
+```{r}
+# Function to give clothing advice based on temperature
+clothing_advice <- function(temperature) {
+  # Your code here
+  # Hint: Use if-else statements to check the temperature and return the advice
+}
+
+# Example usage:
+# advice <- clothing_advice(20)
+# print(advice)
+# Expected Output (for temperature = 20): "Wear a light jacket."
+
+```
+
+Solution: 
+```{r}
+# Function to give clothing advice based on temperature
+clothing_advice <- function(temperature) {
+  if (temperature > 25) {
+    return("Wear a T-shirt.")
+  } else if (temperature >= 15 && temperature <= 25) {
+    return("Wear a light jacket.")
+  } else {
+    return("Wear a warm coat.")
+  }
+}
+
+# Example usage:
+advice <- clothing_advice(20)
+print(advice)
+
+```
+
+## Exercises from book
+### Ex. 5.1 Discrete probability simulation: Suppose that a basketball player has a 60% chance of making a shot, and he keeps taking shots until he misses two in a row. Also assume his shots are independent (so that each shot has 60% probability of success, no matter what happened before).
+* Hint 3 and 4
+
+#### Ex. 5.1.a) Write an R function to simulate this process.
+- We're told that the basketball player has 60& chance of making the shot
+- We're told he keeps shooting until missing two in a row
+- We're also told to assume that his shots are independent, all having 60% of probability of success
+
+To simulate the process we can list the variables that we'll need to record based on what we're told: 
+We need to record: 
+- probability of making the shot
+- number of misses in a row (we need something that can count it because we know he stops when missing 2)
+- number of hits in a row (to see how many he gets)
+- shots taken
+
+Let's try and write a function:
+```{r}
+# Function to simulate basketball player
+basketball <- function(printing = FALSE){
+  
+  # Defining vars
+  misses_in_a_row <- 0 # start with 0 misses
+  hits_in_a_row <- 0 # start with 0 hits 
+  shots <- 0 # start with 0 shots
+  
+  # Starting a while-loop
+  while (misses_in_a_row < 2){ # if we miss two in a row, we stop, but while it's true that misses are below 2, we (literally) ball
+    
+    # Since a hit is a success/fail event, we'll use the rbinom to get the bernoulli trial. In a bernoulli trial, there are only two outcomes possibkle: 1 or 0, i.e. success or failure.
+    hit <- rbinom(1, size = 1, prob = .6) # the bernoulli trial.
+    
+    # Now we need to check whether the hit was in fact a hit
+    if (hit == 1){ # check if hit, i.e. if success
+      hits_in_a_row <- hits_in_a_row + 1 # add 1 to counter of number of hits
+      misses_in_a_row <- 0 # Now, reset the misses in a row, because our guy did not miss
+      shots <- shots +1 # Add one to shots, cause he did take a shot
+    }
+    
+    else{ # if it were a miss 
+      misses_in_a_row <- misses_in_a_row + 1 # add 1 to the counter of misses
+      shots <- shots +1
+    }
+  }
+  
+  # if statement to print results
+  if (printing == TRUE){
+    print(paste("You hit", hits_in_a_row, "out of", shots, "shots"))
+  }
+  return(c(hits_in_a_row, shots))
+}
+
+# Use the function
+basket_sim <- basketball(printing = TRUE)
+
+```
+
+#### Ex. 5.1.b) Put the R function in a loop to simulate the process 1000 times. Use the simulation to estimate the mean and standard deviation of the total number of shots that the player will take, and plot a histogram representing the distribution of this random variable. 
+```{r}
+# Simulating the basketball player a 1000 times and estimating the mean and the standard deviation of the of the total number of shots
+total_shots <- c()
+hits <- c()
+
+for (i in 1:1000){
+  
+  temp <- basketball()
+  hits[i] <- temp[1]
+  total_shots[i] <- temp[2]
+  
+}
+
+paste("The mean of the total number of shots is", mean(total_shots), "and the std of total number of shots is", sd(total_shots))
+hist(total_shots)
+```
+#### Ex. 5.1.c) Using your simulations, make a scatterplot of the number of shots the player will take and the proportion of shots that are successes.
+```{r}
+# Using the simulations to make a scatterplot of the number of shots the player will take and the proportion of shots that are successes 
+plot(x = total_shots, y = hits/total_shots)
+```
+
+### Ex. 5.3: Binomial distribution: A player takes 10 basketball shots, with a 40% probability of making each shot. Assume the outcomes of the shots are independent.
+#### Ex. 5.3.a) Write a line of R code to compute the probability that the player makes exactly 3 of the 10 shots.
+```{r}
+# The basketball scenarios can still be seen as a binomial distribution.
+# Use the probability density function to compute the probability that each player makes 3 out of 10 shots.
+# Remember that dbinom(k, n, p) can be used 
+
+dbinom(3, # 3 hits
+       size = 10,  # out of 10 shots
+       prob = .4)  # prob of 40% of making it (told in question)
+
+```
+Probability of this is ~22%.
+
+#### Ex. 5.3.b) Write an R function to simulate the 10 shots. Loop this function 10 000 times and check that your simulated probability of making exactly 3 shots is close to the exact probability computed in (a).
+```{r}
+# We can either utilize the builtin rbinom function
+shots_hit_sim<- rbinom(1e4, size = 10 , prob = .4)
+print('Builtin R:')
+sum(shots_hit_sim == 3)/1e4
+
+# Or write a function ourselves
+basket_sim_function <- function(n){
+  sim_vals <- c()
+  for (i in 1:n){
+    sim_vals[i] <- rbinom(1, size = 10 , prob = .4)
+  }
+  return(sum(sim_vals == 3)/n)
+}
+print('Own loop:')
+basket_sim_function(10000)
+
+# They are comparable to the true probability found in a)
+```
+
+## Ex. 5.4: Demonstration of the Central Limit Theorem: Let x = x1 + · · · + x20, the sum of 20 independent uniform(0, 1) random variables. In R, create 1000 simulations of x and plot their histogram. What is the normal approximation to this distribution provided by the Central Limit Theorem? Overlay a graph of the normal density on top of the histogram. Comment on any differences between the histogram and the curve.
+
+Recall the Central limit theorem (CLT) on the bottom of page 51 and from Methods 1:
+```{r}
+# The Central Limit Theorem of probability states that the sum of many small, independent random variables will be a random variable that approximates what is called a normal distribution
+random_vals <- c()
+for (i in 1:1000){
+  random_vals[i] <- sum(runif(20, min = 0 , max = 1))
+}
+
+hist(random_vals, freq = FALSE)
+x = seq(from = -100, to = 100)
+curve(dnorm(x, mean=mean(random_vals), sd=sd(random_vals)), 
+      col="darkblue", lwd=2, add=TRUE, xlim = c(6,14))
+
+```
+
+```{r}
+# Alternative solution with ggplot
+df <- data.frame()
+for (i in 1:1000){
+  df[i,1] <- sum(runif(20, min = 0 , max = 1))
+}
+
+ggplot(df, aes(x = V1)) + geom_histogram(aes(y = ..density..)) + stat_function(fun = dnorm, args = list(mean=mean(df$V1),sd=sd(df$V1))) + theme_classic()
+```
+
+## Ex. 5.5: Distribution of averages and differences: The heights of men in the United States are approximately normally distributed with mean 69.1 inches and standard deviation 2.9 inches. The heights of women are approximately normally distributed with mean 63.7 inches and standard deviation 2.7 inches. Let x be the average height of 100 randomly sampled men, and y be the average height of 100 randomly sampled women. In R, create 1000 simulations of x − y and plot their histogram. Using the simulations, compute the mean and standard deviation of the distribution of x − y and compare to their exact values.
+*Hint 1
+
+```{r}
+# Distribution of averages and differences
+# x = randomly sampled height of men, y = randomly sampled height of women
+x <- c()
+y <- c()
+xy_diff <- c()
+n_sims <- 1000
+
+# Looping through the 1000 simulations
+for (i in 1:n_sims){
+  
+  # Setting the i'th index of my x vector to be the mean of a rnorm() dist with the means/sds given
+  x[i] <- mean(rnorm(100 , mean = 69.1, sd = 2.9))
+  
+  # Setting the i'th index of my y vector to be the mean of a rnorm() dist with the means/sds given
+  y[i] <- mean(rnorm(100, mean = 63.7, sd = 2.7))
+  
+  # Get the difference as per the question (x-y) for the ith observation
+  xy_diff[i] <- x[i] - y[i] 
+}
+
+# Look at results
+mean(xy_diff)
+sd(xy_diff)
+
+# Histogram
+hist(xy_diff)
+
+```
+Computing the exact values based on definitions from page. 43 describing the sum of correlated variables:
+$$ \mu_{x-y}=\mu_x - \mu_y$$
+In the fomula on p. 43 insert the definition of the correlation from the covariance:
+$$\sigma_{x-y} = \sqrt{\sigma_x^2 + \sigma_y^2 - 2 \cdot \frac{cov(x,y)}{\sigma_x\sigma_y}\cdot\sigma_x\sigma_y} = \sqrt{\sigma_x^2 + \sigma_y^2 - 2 \cdot cov(x,y)} $$
+```{r}
+# Mean  
+69.1 - 63.7
+# Standard error of the mean.
+sqrt((2.9/sqrt(100))^2 +  (2.7/sqrt(100))^2 - 2 * cov(x,y))
+```
+
+## Ex. 5.8: Coverage of confidence intervals: On page 15 there is a discussion of an experimental study of an education-related intervention in Jamaica, in which the point estimate of the treatment effect, on the log scale, was 0.35 with a standard error of 0.17. Suppose the true effect is 0.10 — this seems more realistic than the point estimate of 0.35 — so that the treatment on average would increase earnings by 0.10 on the log scale. Use simulation to study the statistical properties of this experiment, assuming the standard error is 0.17.
+*Hint 2
+#### Ex. 5.8.a) Simulate 1000 independent replications of the experiment assuming that the point estimate is normally distributed with mean 0.10 and standard deviation 0.17.
+In the experiment on page 15, we see n = 127 children.
+```{r}
+# Make a dataframe to hold these things, using rlnorm(=)
+df_sim <- data.frame(V1 = rlnorm(127,  # number of children
+                    meanlog = 0.10,    # The mean log of 0.10
+                    sdlog = 0.17))-1   # The sdlog of 0.17 and shifting the whole dataset with -1
+
+# Looping through the observations
+for (i in 2:1000){
+  df_sim[,i] <- rlnorm(127, meanlog = 0.10, sdlog = 0.17) - 1
+}
+```
+
+#### Ex. 5.8.b) For each replication, compute the 95% confidence interval. Check how many of these intervals include the true parameter value.
+```{r}
+# Function to calculate the confidence interval
+conf_int <- function(x){
+  
+  # compute mean
+  mean_value <- mean(x)
+  
+  # compute size
+  n <- length(x)
+  
+  # find std
+  standard_deviation <- sd(x)
+  
+  standard_error <- standard_deviation / sqrt(n)
+  alpha = 0.05
+  degrees_of_freedom = n - 1
+  t_score = qt(p=alpha/2, df=degrees_of_freedom,lower.tail=F)
+  margin_error <- t_score * standard_error
+
+  lower_bound <- mean_value - margin_error
+  upper_bound <- mean_value + margin_error
+  
+  return(c(lower_bound,upper_bound))
+}
+
+
+# Loop through the 1000 simulations
+lower_ci <- c()
+upper_ci <- c()
+
+for (i in 1:1000){
+  lower_ci[i] <- conf_int(df_sim[,i])[1]
+  upper_ci[i] <- conf_int(df_sim[,i])[2]
+}
+
+paste("Number of simulations that contain the true value in 95% confidence interval=", sum(upper_ci >= 0.10 & lower_ci <= 0.10))
+```
+
+#### Ex. 5.9: Coverage of confidence intervals after selection on statistical significance: Take your 1000 simulations from Exercise 5.8, and select just the ones where the estimate is statistically significantly different from zero. Compute the average and standard deviation of the selected point estimates. Compare these to the result from Exercise 5.8.
+Looping through the simulations and creating t-tests to see if the treatment effect is significantly different from zero.
+```{r}
+# Initialize vector called temp
+temp <- c()
+
+# Loop through each column in df_sim 
+for (i in 1:ncol(df_sim)){
+  
+  # Run a t-test and save the result in temp[]
+  temp[i] <- t.test(df_sim[,i], mu = 0, alternative = "greater")$p.value
+}
+
+sum(temp >= 0)
+```
+
+# Hints
+### Hint 1 (for 5.5)
+Utilize that 
+$$
+\rho_{X, Y}=\operatorname{corr}(X, Y)=\frac{\operatorname{cov}(X, Y)}{\sigma_X \sigma_Y}
+$$
+### Hint 2 (for 5.8)
+If you are stuck figuring out how to find confidence intervals in R have a look here:
+https://www.geeksforgeeks.org/how-to-find-confidence-intervals-in-r/
+
+### Hints for 5.1:
+Hint 3: Think about what distribution we'll use to simulate from when it's a basketball hit we're talking about here (success/fail type outcome). Rhymes with minomial.
+Hint 4: Think about the two loops we have learnt about. When this guy keeps shooting UNTIL something happens (i.e. while something is true), what loop should we use?
+
+# Extra exercises to practice making functions in R + discussing questions
+
+### Prime number checker
+A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself. The function should take one argument, which is the number to check, and return TRUE if the number is prime and FALSE otherwise.
+
+#### Ex. 1: Write a function in R that checks whether a given number is a prime number
+```{r}
+# Function to check if a number is prime
+is_prime <- function(number) {
+  # Your code here
+  # Hint: You may use a while-loop or a for-loop to test divisibility
+  # Remember to handle edge cases like numbers less than 2
+}
+
+# Example usage:
+# result <- is_prime(29)
+# print(result)
+# Expected Output (for number = 29): TRUE
+```
+
+Solution:
+```{r}
+# Function to check if a number is prime
+is_prime <- function(number) {
+  if(number <= 1){
+    return(FALSE)  # Numbers less than 2 are not prime
+  }
+  if(number == 2){
+    return(TRUE)  # 2 is prime
+  }
+  if(number %% 2 == 0){
+    return(FALSE)  # No even number greater than 2 is prime
+  }
+  for(i in 3:sqrt(number)){
+    if(number %% i == 0){
+      return(FALSE)  # If divisible by any i, then not prime
+    }
+  }
+  return(TRUE)  # If not divisible by any i, then prime
+}
+
+# Example usage:
+result <- is_prime(29)
+print(result)
+```
+
+### Fibonacci
+The Fibonacci sequence is a series of numbers where the next number is found by adding up the two numbers before it. The sequence commonly starts with 0 and 1. The function should take one argument, n, which represents the length of the sequence to generate.
+
+#### Ex. 2: Fibonacci Sequence Generator: Write a function in R that generates the Fibonacci sequence up to the n-th term.
+```{r}
+# Function to generate Fibonacci sequence
+generate_fibonacci <- function(n) {
+  # Your code here
+  # Hint: Initialize the sequence with the first two numbers, then use a for-loop to generate the rest
+}
+
+# Example usage:
+# fibonacci_sequence <- generate_fibonacci(10)
+# print(fibonacci_sequence)
+# Expected Output (for n = 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+```
+
+Solution: 
+```{r}
+generate_fibonacci <- function(n) {
+  if (n <= 0) {
+    return(NULL)
+  }
+  fib <- numeric(n)
+  fib[1] <- 0
+  if (n > 1) {
+    fib[2] <- 1
+  }
+  for (i in 3:n) {
+    fib[i] <- fib[i-1] + fib[i-2]
+  }
+  return(fib)
+}
+
+# Example usage:
+fibonacci_sequence <- generate_fibonacci(10)
+print(fibonacci_sequence)
+# Expected Output (for n = 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+```
+
+## Discuss question 1: Consider the study of ovulation and political attitudes on pp. 62-63. Why is this study flawed. Discuss with your neighbor :)
+- Many different things could have been tested. Thus, it is not surprising that one of them would be significant.
+- Type M-error: The effect seem implausibly large. Unrealistic number of people switch their voting preference. This could be explained by some confounding variable. The book suggests that maybe liberal or conservative women are more likely to participate during different parts of their cycle.
+
+## Discuss question 2: What are the authors 3 suggestions to avoid over-interpretation of noise?
+- Analyzing all of your data
+- Present all comparisons
+- Make your data public
+
+## Optional: If you want more exercises from chapter 4 try 4.1 and 4.2 Hint: In 4.2 use the proportions 50/50 or those given in the example in section "Standard error for a comparison" on pp. 52-53
