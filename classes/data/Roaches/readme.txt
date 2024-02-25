@@ -1,1 +1,0 @@
-No data here for confidentiality reasons.
