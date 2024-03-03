@@ -1,0 +1,471 @@
+---
+title: "Class 3 solutions"
+author: "Pernille Brams"
+date: "22/2/2024"
+output:
+  html_document:
+    toc: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Setting my root directory to where I have my /data folder etc. (easier for me, but personalise to your own way of working)
+knitr::opts_knit$set(root.dir = "/Users/pernillebrams/Desktop/AARHUS_UNIVERSITY/instructor_2024/methods-2")
+
+```
+
+```{r libs}
+library(pacman)
+
+pacman::p_load(tidyverse,
+               ggpubr,
+               ggplot2)
+
+```
+
+# Continuing learning about simulations (and practicing a bit)
+In coding, repetition is key when learning it... (at least it is for me) - it's kind of like when you learn a new language :333 n'est pas??
+
+Choose your exercises as per your needs - all of this is highly relevant for the remaining portfolios and exercises. In a few weeks, you'll get the opportunity (only if you want to) to submit answers to some exercises I'll give you (including some like the ones below) to me, and I'll review them and give you feedback.
+
+Also, never feel 'guilty' for using hints. They're there to help you. Try first on your own, and use the hint when you feel your working memory slacking a bit :)) Just make sure you have an idea about what's going on in the code.
+
+## A. Need some more practice in for loops?
+### A1 Using a for-loop, calculate the sum of the first 100 positive integers, starting from 1
+Result to check: You should get 5050.
+
+Hint A1* under Hints
+```{r}
+
+# Setting an object called my_sum
+my_sum = 0
+
+# Getting ready to loop
+for (i in 1:100){ # opening the curly bracket to start loop contents ("what should happen to i")
+  
+  # Taking my my_sum object, and for each i it will be overwritten by itself + i
+  my_sum <-  my_sum + i
+}
+
+# Let's check it out...
+my_sum
+
+```
+
+### A2 Using a for-loop, create a vector of the squares of the first 20 positive integers, starting from 1. Calculate the sum of the vector.
+Result to check: You should get 2870.
+
+Hint A2* under Hints
+
+```{r}
+
+# Let's first make a vector that's 20 long
+vector_w_20_ints <- rep(0,                # Using rep() to make my vector here. Contents don't really matter as they will be overwritten
+                        length.out = 20)  # I want it to be 20 long, so putting 20 here
+
+# Fyi, you can check length of vectors with length()
+length(vector_w_20_ints)
+
+# Trick: you can index a vector, e.g., if I want to access the first element of my vector, I'd do:
+vector_w_20_ints[1] # We'll use this in the for loop
+
+# Let's loop
+for (i in 1:20){ # We're asked to create a vector of the squares (meaning ^2) of the first 20 positive integers from 1, so we can loop 1:20
+  
+  # Now square the i
+  i_am_squared = i^2
+  
+  # Let's put the newly squared i into our ready-made vector using indexing
+  vector_w_20_ints[i] = i_am_squared # Using 'i' to say "I want my 'i_am_squared' object for this round to be at the i'th place in the vector vector_w_20_ints"
+  
+}
+
+# (this is a good point to check if your environment-pane has changed after running the loop - do you see the vector has updated from having 0s to having cooler numbers?)
+
+# Now, let's take the sum of our filled vector
+sum(vector_w_20_ints)
+
+```
+
+## B. Need some more practice in while loops? 
+### B1 Use a while loop to find the smallest integer n, such that the sum of the first n positive integers is greater than 1000.
+Result to check: You should get 45 here
+
+Hint B1* under Hints
+
+Okay phew I always get a little freaked out with questions like these because of their elite phrasing haha. So let's take it apart a bit ("The solution to a difficult problem is always to break it up in smaller parts"! :))))))))) #fun: 
+- "Such that the" gives us our condition we need the while loop to run until, so our while loop needs to run until the sum of the n numbers is larger than 1000
+- " greater than 1000" tells us we need some kind of variable tracking what the sum of the numbers is, and we need to check this variable for being > 1000. If it isn't yet >1000, the loop should keep going, if it is >1000, we can print the number that we got to
+
+```{r}
+
+# Let's define our sum-tracker
+sum_tracker <- 0
+
+# We also need a number, and let's call it n, and we'll start it at 0
+n <- 0
+
+# We'll code straight from the question: while the sum tracker is not greater than 1000 (= under or equal to 1000), we keep going
+while (sum_tracker <= 1000){
+  
+  # Let's add 1 to n to make it go to the next one
+  n <- n + 1
+  
+  # Add n (the next positive integer) to sum_tracker
+  sum_tracker <- sum_tracker + n 
+}
+
+# When the condition (sum_tracker <= 1000) is broken, the loop will stop, and our n will be the largest n where the condition was satisfied. Let's check:
+print(n)
+
+```
+
+### B2 Create a countdown from 10 to 1 and then print "Lift off!".
+
+Hint B2* under Hints
+
+```{r}
+
+countdown <- 10
+while(countdown > 0) {
+  print(countdown)
+  countdown <- countdown - 1
+}
+print("Lift off!")
+
+```
+## C. Need some more practice in if-else statement? 
+### C1 Write code to determine if a given integer x is positive, negative, or zero, for the following values for x: 
+-4
+7
+23
+-120309
+0
+
+```{r}
+
+# -- One by one solution (for-loop solution below)
+x <- -4 # Doing this each time for my different values for x
+
+if(x > 0) {
+  print("Positive")
+} else if(x < 0) {
+  print("Negative")
+} else {
+  print("Zero")
+}
+
+```
+```{r}
+# -- For loop solution
+values <- c(-4,7,23,-120309,0)
+
+for (value in values) {
+  # Putting all my ifelse stuff from above in here, and putting 'value' instead of x
+  if (value > 0) {
+    print("Positive")
+  } else if (value < 0) {
+    print("Negative")
+  } else {
+    print("Zero")
+  }
+}
+```
+
+Tip for C1: do it one by one first, and if you need more practice, do a for-loop and check them that way.
+
+### C2 Write a script that categorizes a person's age: child (< 12), teenager (12-18), adult (19-65), senior (> 65) for the following ages
+Ages: 
+10
+20
+56
+19
+89
+:) :) 26 :) :)
+
+```{r}
+# -- One by one solution (for-loop solution below)
+age <- 26 #  Doing this for different ages
+
+if(age < 12) {
+  print("Child")
+} else if(age >= 12 & age <= 18) {
+  print("Teenager")
+} else if(age > 18 & age <= 65) {
+  print("Adult")
+} else {
+  print("Senior")
+} 
+```
+
+```{r}
+# -- For loop solution
+# Creating a vector with the ages
+ages <- c(10,20,56,19,89,26)
+
+for (age in ages){
+  
+  if(age < 12) {
+  print("Child")
+} else if(age >= 12 & age <= 18) {
+  print("Teenager")
+} else if(age > 18 & age <= 65) {
+  print("Adult")
+} else {
+  print("Senior")
+} 
+
+}
+
+```
+## D. Need some more practice in functions? 
+### D1 Create a function that takes a vector of numbers and returns the mean of that vector.
+(If you need to, check class 2's doc for how to write functions)
+```{r}
+
+calculate_mean <- function(numbers) {
+  mean_value <- sum(numbers) / length(numbers)
+  return(mean_value)
+}
+
+# Example usage
+print(calculate_mean(c(1, 2, 3, 4, 5))) # Should print 3
+
+```
+
+### D2 Write a function named calculate_area_circle that takes the radius of a circle as its argument and returns the area of the circle. Remember, the formula to calculate the area of a circle is pi*r^2, where r is the radius of the circle.
+
+```{r}
+calculate_area_circle <- function(radius) {
+  area <- pi * radius^2
+  return(area)
+}
+
+# Example usage
+print(calculate_area_circle(10)) # Should print something like 314.1593
+
+```
+
+## E. Need some more practice in simulations? 
+### E1 Write a simulation to mimic the rolling of two six-sided dice. Simulate rolling the two dice 10000 times and store the sum of the dice faces for each roll. Plot a histogram of the sums to see the distribution of the total dice rolls. Calculate and print the mean and standard deviation of the rolls.
+```{r}
+# Simulating dice rolls
+set.seed(123) # For reproducibility
+
+rolls <- replicate(10000, 
+                   sum(sample(1:6, 2, replace = TRUE)))
+
+# Plotting histogram
+hist(rolls, main = "Histogram of Dice Rolls", xlab = "Sum of Dice", breaks = 11)
+
+# Calculating mean and standard deviation
+mean_rolls <- mean(rolls)
+sd_rolls <- sd(rolls)
+
+# Print results
+print(paste("Mean of rolls:", mean_rolls))
+print(paste("Standard deviation of rolls:", sd_rolls))
+
+```
+
+### E2 Consider a population that grows exponentially according to the formula \(P = P_0e^{rt}\) (the e^{rt} part is written exp(r*t) in r), where \(P_0\) is the initial population size, \(r\) is the rate of growth, and \(t\) is time in years. Simulate the growth of a population starting with 100 individuals and a growth rate of 2% per year over 50 years. Plot the population size each year.
+
+```{r}
+# Simulating population growth
+P0 <- 100 # Initial population
+r <- 0.02 # Growth rate per year
+t <- 0:50 # Time in years from 0 to 50
+
+# Calculate population size at each year
+P <- P0 * exp(r * t)
+
+# Plotting
+plot(t, P, type = 'l', main = "Exponential Population Growth Over Time", xlab = "Time (Years)", ylab = "Population Size", col = "blue")
+
+```
+### E3 Simulate the annual returns of an investment portfolio with an average return of 7% and a standard deviation of 10%. Assume the returns follow a normal distribution. Simulate 30 years of returns and calculate the final portfolio value assuming an initial investment of $10,000. Repeat this simulation 1000 times and plot a histogram of the final portfolio values. Calculate the mean and standard deviation of the final values.
+
+```{r}
+# Simulating investment returns
+set.seed(123) # For reproducibility
+
+# Defining some vars
+n_years <- 30
+n_sims <- 1000
+initial_investment <- 10000
+final_values <- numeric(n_sims)
+
+# Looping through simulations
+for (i in 1:n_sims) {
+  annual_returns <- rnorm(n_years, mean = 0.07, sd = 0.10)
+  final_values[i] <- initial_investment * prod(1 + annual_returns)
+}
+
+# Plotting histogram of final portfolio values
+hist(final_values, main = "Histogram of Final Portfolio Values", xlab = "Final Value", breaks = 50)
+
+# Calculating mean and standard deviation of final values
+mean_final <- mean(final_values)
+sd_final <- sd(final_values)
+
+# Print results
+print(paste("Mean final value:", mean_final))
+print(paste("Standard deviation of final value:", sd_final))
+
+```
+
+#### E4 (Ex. 3.5 from the book) Probability distributions: Using a bar plot in R, graph the binomial distribution with n = 20 and p = 0.3.
+Again, graph means simulate + plot. We're asked to use the binomial distribution and I forgot how to do that in R, so a quick google search showed me that you simulate from the binomial distribution using dbinom(). So let's go:
+
+```{r}
+# Simulate some data
+bino_data <- dbinom(1:20, # I want 20 points
+                    20,   # Setting n = 20 as instructed in the question
+                    0.3)  # Setting p = 0.3 as instructed in the question
+
+# Plotting
+barplot(bino_data,
+        ylab="Probability", 
+        ylim=c(0,0.2), 
+        xlab = 'k', 
+        names.arg=1:20)
+
+# This distribution show the probability of getting exactly k successes in n independent Bernoulli trials
+```
+One important thing that differentiates poisson and binomial distributions:
+The binomial distribution is one, whose possible number of outcomes are two, i.e. success or failure. On the other hand, there is no limit of possible outcomes in Poisson distribution.
+- Example of Binomial: coin toss
+- Example of Poisson: Number of overfloods in a river. Number of friends at Cogsci. Number of times pernille drinks coffee per day over a semester's time
+
+
+### E5 Sampling from a discrete distribution - rolling a loaded die
+A loaded (or biased) die is one where the probabilities of landing on each number are not equal. Simulate rolling a loaded die 10,000 times, where the probabilities of rolling each number from 1 to 6 are given as follows: P(1) = 0.05, P(2) = 0.10, P(3) = 0.35, P(4) = 0.25, P(5) = 0.15, P(6) = 0.10. Plot a histogram of the outcomes and calculate the mean and standard deviation of the results.
+
+```{r}
+# Set probabilities of each side of the loaded die
+probabilities <- c(0.05, 0.10, 0.35, 0.25, 0.15, 0.10)
+
+# Simulating rolls using sample()
+rolls <- sample(1:6, size = 10000, replace = TRUE, prob = probabilities)
+
+# Plotting outcomes
+hist(rolls, breaks = 6, main = "Histogram of Loaded Die Rolls", xlab = "Die Face", col = "skyblue")
+
+# Calculating and printing mean and standard deviation
+mean_rolls <- mean(rolls)
+sd_rolls <- sd(rolls)
+cat("Mean of rolls:", mean_rolls, "\n")
+cat("Standard deviation of rolls:", sd_rolls, "\n")
+
+```
+### E6 Sampling from a continuous distribution - generating heights
+Assume that the heights of individuals in a population are normally distributed with a mean of 170 cm and a standard deviation of 10 cm. Generate a sample of 1,000 individual heights from this distribution. Plot a histogram of the generated heights and calculate the mean and standard deviation of the sample.
+```{r}
+# Generating some heights using rnorm()
+heights <- rnorm(1000, mean = 170, sd = 10)
+
+# Plotting the distribution of heights
+hist(heights, main = "Histogram of Generated Heights", xlab = "Height (cm)", col = "green")
+
+# Calculating and printing mean and standard deviation
+mean_heights <- mean(heights)
+sd_heights <- sd(heights)
+cat("Mean of generated heights:", mean_heights, "\n")
+cat("Standard deviation of generated heights:", sd_heights, "\n")
+
+```
+
+### E7 Simulating coin flips - Bernoulli Distribution
+(this is something we work with on the master's hehe)
+Simulate flipping a fair coin 5,000 times, where the outcome of each flip is either "Heads" or "Tails" with equal probability. Calculate and print the proportion of flips that result in Heads. This exercise demonstrates sampling from a Bernoulli distribution, which is a simple case of a discrete distribution.
+```{r}
+# Simulating some coin flips using sample()
+flips <- sample(c("Heads", "Tails"), size = 5000, replace = TRUE, prob = c(0.5, 0.5))
+
+# Calculating proportion of Heads
+proportion_heads <- sum(flips == "Heads") / length(flips)
+cat("Proportion of Heads:", proportion_heads, "\n")
+
+```
+
+# A few more exercises from the book
+## Chapter 3
+#### Ex 3.3 Probability distributions: Using R, graph probability densities for the normal distribution, plotting several different curves corresponding to different choices of mean and standard deviation parameters.
+The task is to draw/plot some probability distributions for the normal distribution. From Methods 1 we learnt the normal distribution as just one thing that we want to compare our data against to e.g. check for normality of residuals. Actually, the normal distribution (also known as the gaussian) is also called family of distributions that can have any real value as the mean and any positive value as the standard deviation. The *standard* normal distribution is a special case of the normal distribution with a mean of 0 and standard deviation of 1, and this guy we know from Methods 1.
+
+The point of this task is thus for you to see what happens when you vary the mean/standard deviation and nothing else in a distribution.
+```{r}
+# Create a sequence of numbers between -10 and 10 incrementing by 0.1.
+x <- seq(-10, 10, by = .1)
+
+# Choose the mean as 2.5 and standard deviation as 0.5.
+y <- dnorm(x, mean = 0, sd = 1)
+plot(x, y, type = "l", main = 'Varying the standard deviation', ylab = 'density')
+
+
+for (sd_val in 2:4){
+    x <- seq(-10, 10, by = .1)
+    lines(x, dnorm(x, 0, sd_val))
+}
+
+y2 <- dnorm(x, mean = -2, sd = 1)
+plot(x, y2, type = "l", main = 'Varying the mean', ylab = 'density')
+for (mean_val in -1:2){
+    x <- seq(-10, 10, by = .1)
+    lines(x, dnorm(x, mean_val, 1))
+  }
+```
+
+```{r}
+# Using ggplot and simulation
+# Simulate numbers for a density distribution
+density_df <- data.frame(density_values = c(), mean_dens = c(), sd_dens = c())
+
+# Simulating standard deviations 2,3 and 4
+for (sd_val in 2:4){
+  # looping over mean values from 10 to 15
+  for (mean_val in 10:15){
+    temp <- rnorm(1000, mean = mean_val,  sd = sd_val)
+    mean = rep(mean_val,1000)
+    sd = rep(sd_val, 1000)
+    
+    density_df <- rbind(density_df, data.frame(density_values = temp , mean_dens =  mean, sd_dens = sd))
+  }
+}
+
+ggplot(density_df, 
+       aes(x = density_values, color = as.factor(mean_dens))) + 
+  geom_density(alpha = 0.4) + 
+  facet_grid( ~as.factor(sd_dens)) + 
+  theme_classic()
+```
+#### Ex. 3.4 Probability distributions: Using a bar plot in R, graph the Poisson distribution with parameter 3.5.
+Remember when the book says 'graph' it means simulate some data as per instructions and make a plot, so lets go:
+
+```{r}
+# Doing a Poisson distribution using dpois() to simulate in R
+poisson_data <- dpois(1:10, # Getting 10 points
+                      3.5)  # Setting the parameter as per the question (lambda)
+
+# Doing a simple barplot
+barplot(poisson_data,
+        
+        # Making some labels
+        ylab="Probability",
+        xlab="n",
+        ylim=c(0,max(poisson_data)+0.05),  # Setting the y-axis limit to the max + a little bit
+        
+        names.arg=1:10) # Getting names on the bars
+```
+
+# Hints for exercises A-E
+## Hints for A
+Hint A1: Start by making a variable called my_sum (or whatever you want to call it), starting at 0. Can you write code to loop through from i = 1 all the way to 100 and add each i to 'my_sum'? 
+
+Hint A2: Create an empty vector (or a vector full of 0s or something) that's as long as you need it to be. Then in your for loop, use indexing in your vector to place your squared values. After the for loop has run, you can just do sum(your_vector_with_the_squared_values). 
+
+## Hints for B
+Hint B1: Start by defining a sum-tracker object, which will be used in the loop to check if it is below/equal to 1000 - because while (!) that is true, we want to add the next number to the sum-tracker. The while loop will stop when the condition youve set ISNT true anymore, and then, you should print the n it got to (so you also need to, before your while loop starts, define an n, which is the positive integer-holder).
+
+Hint B2: For this loop, you're gonna be counting down, so subtracting something from an object you must define, and subtracting until 0. So your 'while' statement has to be like "while this object is OVER 0".
