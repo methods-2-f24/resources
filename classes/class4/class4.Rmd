@@ -1,0 +1,53 @@
+---
+title: "Class 4 solutions"
+author: "Pernille Brams"
+date: "22/2/2024"
+output:
+  html_document:
+    toc: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs}
+library(pacman)
+
+pacman::p_load(tidyverse,
+               ggpubr,
+               rstanarm)
+
+```
+
+# By hand or Latex syntax in a .Rmd file
+Most of these exercises are easiest solved by hand. However, if you want to write math notation in an R-markdown Latex-syntax can be used. Below are some examples of how latex is used to write math equations. Remember to surround your equation by either $ $ or $$ $$.
+
+Example: 
+$\frac{5}{10}$
+
+$$
+x^{\frac{a}{b}}=\left(x^a\right)^{\frac{1}{b}}=\left(x^{\frac{1}{b}}\right)^a=\sqrt[b]{x^a}
+$$
+# Exercises
+[Uploading solutions in hand]
+In the GILL book (in this order):
+1.1
+1.2
+1.3
+1.15
+1.4
+The rest from the lecture's last slide.
+
+# Extra about Bayesian, if you finish early (extra = optional!)
+## Ex. 1: Load rstanarm()
+
+## Ex. 2: Simulate data for a simple linear regression model, y = b0 + b1*X+e, where x is a predictor variable, y is the outcome, and e is the normally distributed error.
+
+## Ex. 3: Fit a Bayesian linear regression model using stan_glm from the rstanarm package with default priors.
+
+## Ex. 4: Explain in a few sentences what a prior is (this is difficult stuff, so light level here is totally fine)
+
+## Ex. 5: Refit model using different priors for b0 and b1.
+
+
