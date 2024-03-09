@@ -1,0 +1,123 @@
+---
+title: "Class 4 solutions"
+author: "Pernille Brams"
+date: "22/2/2024"
+output:
+  html_document:
+    toc: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs}
+library(pacman)
+
+pacman::p_load(tidyverse,
+               ggpubr,
+               rstanarm)
+
+```
+
+# By hand or Latex syntax in a .Rmd file
+Most of these exercises are easiest solved by hand. However, if you want to write math notation in an R-markdown Latex-syntax can be used. Below are some examples of how latex is used to write math equations. Remember to surround your equation by either $ $ or $$ $$.
+
+Example: 
+$\frac{5}{10}$
+
+$$
+x^{\frac{a}{b}}=\left(x^a\right)^{\frac{1}{b}}=\left(x^{\frac{1}{b}}\right)^a=\sqrt[b]{x^a}
+$$
+# Exercises
+[Uploading solutions in hand]
+In the GILL book (in this order):
+1.1
+1.2
+1.3
+1.15
+1.4
+The rest from the lecture's last slide.
+
+## 1.4 code for plotting
+```{r}
+# Load necessary library
+library(ggplot2)
+
+# Create a sequence of Fahrenheit values
+f_values <- seq(-100, 212, by = 1)
+
+# Calculate corresponding Centigrade values based on the linear function
+c_values <- (5/9) * f_values - (160/9)
+
+# Create a data frame for plotting
+data <- data.frame(Fahrenheit = f_values, Centigrade = c_values)
+
+# Plot the relationship
+ggplot(data, aes(x = Fahrenheit, y = Centigrade)) +
+  geom_line(color = "blue") +
+  geom_text(aes(x = 0, y = -20), label = "Slope = 5/9, Intercept = -160/9", hjust = 0, vjust = 0) +
+  theme_minimal() +
+  labs(title = "Relationship between Fahrenheit and Centigrade",
+       subtitle = "Notice how it's approximately -17 F (approx -160/9) at 0 C.",
+       x = "Fahrenheit (F)",
+       y = "Centigrade (C)") +
+  geom_hline(yintercept = -160/9, linetype = "dashed", color = "red", size = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "green", size = 0.5)
+
+```
+
+
+# Extra about Bayesian, if you finish early (extra = optional!)
+## Ex. 1: Load rstanarm()
+Did above
+
+## Ex. 2: Simulate data for a simple linear regression model, y = b0 + b1*X+e, where x is a predictor variable, y is the outcome, and e is the normally distributed error.
+```{r}
+
+set.seed(123) # For reproducibility
+n <- 100 # Number of observations
+x <- runif(n, 0, 10) # Predictor variable
+beta_0 <- 2 # True intercept
+beta_1 <- 3 # True slope
+epsilon <- rnorm(n, mean = 0, sd = 2) # Normally distributed error
+
+y <- beta_0 + beta_1 * x + epsilon # Outcome variable
+
+```
+
+## Ex. 3: Fit a Bayesian linear regression model using stan_glm from the rstanarm package with default priors.
+```{r}
+
+model_default <- stan_glm(y ~ x, 
+                          data = data.frame(x, y),
+                          family = gaussian())
+
+```
+
+## Ex. 4: Explain in a few sentences what a prior is (this is difficult stuff, so light level here is totally fine)
+[Most of this is Methods 4 stuff, so take this as a "nice now I've heard the words before"]
+A prior in Bayesian statistics represents our existing knowledge or beliefs about the values of parameters before we observe any data. It's kinda like an initial guess based on previous studies, expert opinion, or logical reasoning.
+
+When we collect new data, Bayesian methods allow us to update this initial guess in a mathematical nice way, combining our prior beliefs with the new evidence to form a more informed understanding. 
+The result of this process is called "the posterior", which reflects our updated beliefs after taking the data into account.
+
+Priors can vary widely—from very specific (informative priors) based on strong pre-existing knowledge, to very broad or vague (non-informative priors) when we know little beforehand. A non-informative prior can say "i know that the data can only be between 0 and 10", whereas a strong, informative prior says "i know the data will have a mean of 5, because that's what previous studies tell me". We in particular use non-informative priors when we have reason to think a) previous studies are wrong in their measurements, or b) there are no previous studies with measurements that we can build on.
+
+## Ex. 5: Refit model using different priors for b0 and b1.
+```{r}
+# Using a normal prior with a different mean and standard deviation
+model_normal <- stan_glm(y ~ x, 
+                         data = data.frame(x, y), 
+                         family = gaussian(),
+                         # for intercept it's "prior_intercept"
+                         prior_intercept = default_prior_intercept(family),
+                         # for slope it's just "prior"
+                         prior = normal(location = 0, scale = 2.5))
+
+# Using a student_t prior with different degrees of freedom, location, and scale
+model_student_t <- stan_glm(y ~ x, data = data.frame(x, y), family = gaussian(),
+                            prior = student_t(df = 4, location = 0, scale = 2.5, autoscale = FALSE))
+
+```
+
