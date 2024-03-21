@@ -1,0 +1,321 @@
+---
+title: "Class 6 solutions"
+author: "Pernille Brams feat. Kathrine Schultz"
+date: "19/3/2024"
+output:
+  html_document:
+    toc: true  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+[Solutions for exercises A-C are uploaded in pdf.]
+
+This markdown contains exercises focused on various aspects of linear algebra that are crucial for understanding and applying statistical methods effectively.
+
+## A. Calculating Determinants
+
+### Ex. A1. Determinants of 2x2 Matrices
+Solve the following determinants of 2x2 matrices:
+
+1. $$A = \begin{pmatrix} 4 & 7 \\ 2 & 6 \end{pmatrix}$$
+2. $$B = \begin{pmatrix} 1 & -5 \\ 3 & 2 \end{pmatrix}$$
+3. $$C = \begin{pmatrix} -3 & 4 \\ 5 & -2\end{pmatrix}$$
+
+### Ex. A2. Determinants of 3x3 Matrices
+Calculate the determinants for the following 3x3 matrices:
+
+1. $$E = \begin{pmatrix} 6 & 1 & 1 \\ 4 & -2 & 5 \\ 2 & 8 & 7 \end{pmatrix}$$
+2. $$F = \begin{pmatrix} 0 & 9 & -4 \\ 5 & 3 & 2 \\ 1 & 0 & 8 \end{pmatrix}$$
+3. $$G = \begin{pmatrix} 7 & 3 & 1 \\ 2 & 6 & 4 \\ 0 & 2 & 8 \end{pmatrix}$$
+
+## B. Finding the orthogonal vector
+
+### Ex. B1. Find a vector orthogonal to each of v1 and v2:
+1. $$\mathbf{v}_1 = \begin{pmatrix} 2 \\ 3 \end{pmatrix}, \mathbf{v}_2 = \begin{pmatrix} -1 \\ 4 \end{pmatrix}$$
+
+## C. Matrix inversion
+
+### C1. Inversion for 2x2 Matrices
+Invert the following 2x2 matrices:
+
+1. $$M = \begin{pmatrix} 4 & 7 \\ 2 & 6 \end{pmatrix}$$
+2. $$N = \begin{pmatrix} 1 & -5 \\ 3 & 2 \end{pmatrix}$$
+3. $$O = \begin{pmatrix} -3 & 4 \\ 5 & -2 \end{pmatrix}$$
+
+## D. Rank and trace
+### D1. Describe the difference between full rank and short rank
+- **Full Rank**: A matrix is of full rank if its rank is equal to the smaller of the number of its rows or columns, indicating all its rows and columns are linearly independent.
+- **Short Rank**: A matrix is rank deficient (or short rank) if its rank is less than the smaller of its row and column counts, indicating linear dependence among its rows or columns.
+
+### D2. Determine which matrices from 1 and 6 are full rank:
+1. **Matrix 1 (2x2)**:  
+   $$ A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} $$
+
+2. **Matrix 2 (2x2)**:  
+   $$ B = \begin{pmatrix} 1 & 2 \\ 2 & 4 \end{pmatrix} $$
+3. **Matrix 3 (3x3)**:  
+   $$ C = \begin{pmatrix} 1 & 0 & 2 \\ 0 & 1 & 1 \\ 1 & 1 & 0 \end{pmatrix} $$
+
+4. **Matrix 4 (3x3)**:  
+   $$ D = \begin{pmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 3 & 6 & 9 \end{pmatrix} $$
+
+5. **Matrix 5 (4x4)**:  
+   $$ E = \begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix} $$
+
+6. **Matrix 6 (4x4)**:  
+   $$ F = \begin{pmatrix} 1 & 2 & 3 & 4 \\ 2 & 4 & 6 & 8 \\ 3 & 6 & 9 & 12 \\ 4 & 8 & 12 & 16 \end{pmatrix} $$
+
+Answers:
+- **Matrix 1** is full rank because it has no zero determinant.
+- **Matrix 2** is short rank due to its zero determinant, indicating linearly dependent rows.
+- **Matrix 3** is full rank as all rows and columns are linearly independent.
+- **Matrix 4** is short rank because of linearly dependent rows.
+- **Matrix 5** is full rank, being the identity matrix.
+- **Matrix 6** is short rank, having linearly dependent rows and columns.
+
+## E. Vector dot product exercises
+The following exercises are designed to help you understand the properties of the vector dot product through practical examples. You are encouraged to compute these dot products manually and verify your results using R code.
+
+The dot product of two vectors $\mathbf{a}$ and $\mathbf{b}$, with dimensions $n$, is calculated as $\mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{n} a_i b_i$.
+
+#### Commutative Property
+The commutative property of the dot product states that $\mathbf{a} \cdot \mathbf{b} = \mathbf{b} \cdot \mathbf{a}$.
+
+1. Given $\mathbf{a} = [2, 3, 4]$ and $\mathbf{b} = [1, 0, -1]$, calculate $\mathbf{a} \cdot \mathbf{b}$ and $\mathbf{b} \cdot \mathbf{a}$. Show that they are equal.
+
+2. For $\mathbf{c} = [5, 6]$ and $\mathbf{d} = [7, 8]$, compute $\mathbf{c} \cdot \mathbf{d}$ and $\mathbf{d} \cdot \mathbf{c}$. Confirm the commutative property holds.
+
+#### Associative Property
+The associative property applies when considering multiplication by a scalar within a dot product, as in $(c\mathbf{a}) \cdot \mathbf{b} = c(\mathbf{a} \cdot \mathbf{b})$.
+
+3. Let $c = 2$, $\mathbf{e} = [1, 2, 3]$, and $\mathbf{f} = [4, 5, 6]$. Verify that $(c\mathbf{e}) \cdot \mathbf{f} = c(\mathbf{e} \cdot \mathbf{f})$.
+
+4. With $d = -1$, $\mathbf{g} = [3, -3, 1]$, and $\mathbf{h} = [2, 0, 4]$, demonstrate the associative property by calculating both sides of the equation.
+
+#### Distributive Property
+The distributive property states that $\mathbf{a} \cdot (\mathbf{b} + \mathbf{c}) = \mathbf{a} \cdot \mathbf{b} + \mathbf{a} \cdot \mathbf{c}$.
+
+5. Given $\mathbf{i} = [1, 2]$, $\mathbf{j} = [3, 4]$, and $\mathbf{k} = [5, 6]$, show the distributive property by computing both sides of the equation.
+
+6. For $\mathbf{l} = [0, 1, 2]$, $\mathbf{m} = [3, 2, 1]$, and $\mathbf{n} = [-1, 0, 1]$, confirm the distributive property through calculation.
+
+## F. Integrating linear algebra with statistical methods like ordinary least squares (OLS) and sum of squares
+
+### F1: Ordinary Least Squares (OLS) Calculation
+Problem Statement: Given a dataset with a single independent variable and a dependent variable, we can represent the data in matrix form as follows:
+
+Independent variable $X$: $[1, 2, 3, 4]$
+Dependent variable $Y$: $[2.2, 2.8, 3.5, 5.1]$
+
+#### F1.1. Represent these variables in an augmented matrix form where $X$ is augmented with a column of ones to account for the intercept term in the regression equation. This creates the design matrix $\mathbf{X}$.
+```{r}
+# Define the independent variable X and dependent variable Y
+X <- c(1, 2, 3, 4)
+Y <- c(2.2, 2.8, 3.5, 5.1)
+
+# Create the design matrix by augmenting X with a column of ones
+X_design <- cbind(1, X)  # Add a column of ones
+
+# Call to view
+X_design
+```
+#### F1.2 Calculate the coefficients (intercept $\beta_0$ and slope $\beta_1$) using the OLS formula: 
+$\boldsymbol{\beta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$.
+
+The vector produced by this will contain the coefficients of the regression line that best fits our data, according to the least squares criterion. In the context of a simple linear regression, beta will have two elements: b0 = intercept, and b1 = the slope. Represents change in Y with a one unit change in in X (Methods 1 stuff).
+
+The coefficients you get from using the OLS formula are the same as what you would get using the lm() function in R, which fits linear models (Methods 1 stuff). When you use lm(Y ~ X), R is doing all the above steps behind the scenes to calculate $\beta_0$ and $\beta_1$ for the model Y = \beta_0 + \beta_1X which we here do "manually".
+
+The beauty of lm() is that it abstracts away the complexity, but understanding the underlying linear algebra illuminates the fundamental mechanics of linear regression and why the method works.
+
+```{r}
+# Calculate the coefficients using the OLS formula
+beta <- solve(t(X_design) %*% X_design) %*% t(X_design) %*% Y
+
+# Print to view
+beta
+
+```
+
+#### F1.3 Interpret the coefficients in the context of the linear regression model.
+--
+
+### F2 Understanding sum of squares in linear regression
+Problem statement: With the coefficients obtained from a linear regression model, you're tasked to calculate and understand the significance of three key metrics: Total Sum of Squares (TSS), Explained Sum of Squares (ESS), and Residual Sum of Squares (RSS). These metrics help assess the fit of your regression model to the observed data.
+
+#### F2.1 Calculate the Total Sum of Squares (TSS), which quantifies the total variance in the observed data.
+```{r}
+# Going to use beta from the previous regression model calculation in F1, and X_design and Y are defined as in F1 as well
+
+# Calculate predicted values using the obtained coefficients
+Y_pred <- X_design %*% beta # X_design has our predictors, and beta contains the coefficients estimated by your linear regression model
+
+# Calculate the mean of Y
+Y_mean <- mean(Y)
+
+# TSS: Total Sum of Squares
+TSS <- sum((Y - Y_mean)^2)
+```
+
+#### F2.2 Calculate the Explained Sum of Squares (ESS), which measures the variance in the observed data that is explained by the model.
+```{r}
+# ESS: Explained Sum of Squares
+ESS <- sum((Y_pred - Y_mean)^2)
+
+```
+
+#### F2.3 Calculate the Residual Sum of Squares (RSS), which represents the variance in the observed data that the model does not explain.
+```{r}
+# RSS: Residual Sum of Squares
+RSS <- sum((Y - Y_pred)^2)
+
+```
+
+#### F2.4 Interpret the results of TSS, ESS, and RSS in terms of model fit and performance.
+##### Discuss/Explain: How does the magnitude of ESS compare to TSS? What does this say about the model's explanatory power?
+##### Discuss/Explain: How does RSS relate to the overall variance in Y (TSS)? What might a high RSS indicate about the model's fit?
+```{r}
+# Print the sum of squares
+print(paste("TSS:", TSS))
+print(paste("ESS:", ESS))
+print(paste("RSS:", RSS))
+
+```
+
+# Notes and extra stuff
+If you have more time: if you did the above exercises in hand, do some of them in R (check notes below for matrix operation commands). If you did them in R, do some of them in hand. Other than that, check out the following notes: 
+
+## G. Intro to matrix operations in R
+```{r}
+# Gotta load to roll
+pacman::p_load(tidyverse)
+```
+
+### Matrix multiplication
+```{r}
+# We can define some matrices like this
+matrix1 <- matrix(seq(1,10, by = 1), 
+                  ncol = 2)
+
+matrix2 <- matrix(seq(1,10, by = 1), 
+                  nrow = 2)
+
+# Check dimensions using dim()
+dim(matrix1)
+dim(matrix2)
+
+# By the m x n / n x p rule (or saying "5x2 premultiplied by 2x5"), we see the final matrix will be of dimensions 5x5
+matrix1 %*% matrix2
+
+# Similarly, we can say that 2x5 premultiplied by 5x2 = 2x2 
+matrix2 %*% matrix1
+```
+
+### Transposing
+```{r}
+# If we have this matrix
+matrix1
+
+# We can transpose using t()
+t(matrix1)
+```
+The first column is now the first row and so forth. 
+
+### Inverse
+```{r}
+# We can use solve() to find the inverse of a matrix (but this will give an error message)
+solve(matrix1)
+```
+The error message says that we don't have a square matrix and therefore cannot find the inverse. 
+
+A matrix multiplied by its own transposed will always give us a square matrix:
+```{r}
+# Let's multiply it by its own transposed
+matrix_square <- t(matrix1) %*% matrix1
+
+# And then let's try to find the inverse
+solve(matrix_square) # Success!
+```
+
+But as we can see the order still matters:
+```{r}
+# Multiply them in different orders to see the different results
+t(matrix1) %*% matrix1
+matrix1 %*% t(matrix1)
+```
+If we take t(X) pre-multiplied by X we will get a square matrix with the size of the original X's number of columns. If the order of multiplication is inversed we will of course get the new matrix with dimensions equal to the original X's number of rows.
+
+We can find the inverse of $(t(X)X)^{-1}$:
+```{r}
+solve(t(matrix1) %*% matrix1)
+```
+
+Another issue that can arise with inversions of matrices:
+```{r}
+matrix3 <- matrix( c(1,2,3,6) ,ncol = 2, nrow = 2)
+matrix3
+```
+We see that this matrix is a square matrix so we should be able to find the inverse. Or should we?? Let's try it:
+```{r}
+solve(matrix3)
+```
+It returns the message that is singular. What does that mean? How does it relate to our knowledge of the determinant? 
+
+### Determinant
+We can find the determinant of matrix using the following det() function:
+```{r}
+det(matrix3)
+```
+The problem here is that the matrix does not have full rank, which implies that its rows or columns are not linearly independent. Consequently, the determinant of this matrix is zero, indicating that the matrix is singular. This property means the matrix cannot be inverted using standard algebraic methods, which may limit its application in scenarios that require matrix inversion, such as solving linear systems where the inverse of the coefficient matrix is needed.
+
+
+# Notes on how all this linear algebra stuff connects to statistical methods
+Linear algebra is a foundation pillar for many statistical methods and models used in cognitive science research. Understanding matrices, their properties (like determinants and rank), and operations (such as inversion) is taught to hopefully enrich your comprehension of data structures, statistical tests, and model building. Basically, it's taught so that we can use it later, talk about it, and work with it - and you can be assumed to know something about what those things are.
+
+Let's explore how these concepts connect to statistical methods you're already familiar with:
+
+## Linear Models (`lm()`) and Mixed-Effects Models (`lmer()`)
+
+Both `lm()` and `lmer()` functions in R leverage linear algebra extensively. The design matrix in these models, which includes your predictors (or independent variables), can be thought of as a matrix.
+
+Understanding the concept of matrix inversion and determinants is crucial here, especially when considering the least squares solution to linear regression, which essentially involves inverting a matrix.
+
+For mixed-effects models, which include random effects, the complexity and size of the matrices involved grow, making the concepts of rank and the ability to invert matrices directly relevant to understanding how these models are estimated.
+
+## T-Tests
+
+T-tests compare means between two groups and rely on variance estimates.
+
+The concept of variance and standard deviation in statistics can be linked back to the idea of distance in linear algebra, which is foundational in understanding how data points vary around the mean.
+
+Furthermore, the assumptions of t-tests, including the equality of variances, can be explored through the lens of linear transformations and eigenvalues, linking it back to matrix properties.
+
+## Normal Distribution
+
+The normal distribution is pivotal in many statistical tests and methods.
+
+From a linear algebra perspective, understanding multivariate normal distributions involves grasping how data points are distributed in multi-dimensional space, which requires knowledge of matrices, eigenvalues, and eigenvectors.
+
+These concepts help in understanding the shape and orientation of the distribution in higher-dimensional spaces, essential for multivariate analysis.
+
+## Practical Example
+
+In a practical example where we apply linear regression using `lm()` in R:
+
+```{r}
+# Sample linear regression in R
+set.seed(123)
+x <- rnorm(100)
+y <- 2*x + rnorm(100)
+fit <- lm(y ~ x)
+summary(fit)
+```
+... A lot of linear algebra concepts interact. The computation of coefficients, understanding the model's predictions, and even plotting the regression line are all applications of linear algebra in statistical analysis.
+
+So yeah, in sum: The abstract mathematical concepts of linear algebra serve as the underpinning for many statistical methods and models. They provide the tools needed to understand the structure and relationships within your data, allowing for more informed and accurate statistical analysis.
+
+Remember, the power^TM of statistics in cognitive science lies not just in applying formulas, but in understanding the mathematical principles that make those formulas meaningful.
+
