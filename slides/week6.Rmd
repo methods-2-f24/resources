@@ -1,0 +1,75 @@
+---
+title: "week6"
+author: "Nicolas Legrand"
+date: "2024-03-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+```
+
+## Load data
+
+```{r}
+x = c(13,4,12,3,14,13,12,9,11,7,13,11,9,2,5,7,10,0,9,7)
+y = c(70,25,54,21,80,68,84,62,57,40,60,64,45,38,51,52,58,21,75,70)
+```
+
+## Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+# Plotting the results
+dat = data.frame(
+  x = x,
+  y = y
+  )
+
+ggplot(dat, aes(x=x, y=y)) +
+    geom_point()
+
+```
+```{r}
+# design matrix as a column vector
+x = t(rbind(x))
+
+# observations as a column vector
+y = t(rbind(y))
+```
+
+```{r}
+# fit the model using the left inverse
+b = solve(t(x) %*% x) %*% t(x) %*% y
+```
+
+```{r}
+ggplot(dat, aes(x=x, y=y)) +
+    geom_point() + 
+    geom_abline(slope = b)
+```
+```{r}
+# improve the design matrix so it now incorporate the intercept
+x = cbind(x, x)
+x[, 1] = 1.0
+x
+```
+
+
+```{r}
+# fit the model using the left inverse
+b = solve(t(x) %*% x) %*% t(x) %*% y
+b
+```
+```{r}
+ggplot(dat, aes(x=x, y=y)) +
+    geom_point() + 
+    geom_abline(slope = b[2], intercept = b[1])
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
