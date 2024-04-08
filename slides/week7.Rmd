@@ -1,0 +1,160 @@
+---
+title: "week7"
+author: "Nicolas Legrand"
+date: "2024-04-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(tidyverse)
+set.seed(1000)
+
+alpha <- 18
+beta <- 2
+n_obs <- 500
+
+x <- runif(n_obs, 0, 30)
+
+y <- alpha + beta*x + rnorm(n_obs, 0, 3)
+
+data <- tibble(x = x, y = y)
+
+ggplot(data, aes(x = x, y = y)) + geom_point(size = 2) + theme_bw() + labs(title = 'Simulated Data')
+```
+
+
+```{r}
+ols_fit <- lm(y ~ x, data = data)
+```
+
+```{r}
+summary(ols_fit)
+```
+
+```{r}
+ols_fit$coefficients
+```
+TODO: create a cost function that returns the sum of squared errors.
+
+```{r}
+cost_function <- function(alpha, beta, x, y){
+  ss <- 
+  return(ss)
+}
+```
+
+
+TODO: Compute the SSE of the model by inspecting the ols_fit variable looking at the residuals.
+
+```{r}
+
+```
+
+Compute the MSE of the model by using the cost function we have created above.
+
+
+```{r}
+cost_function(
+  alpha = ols_fit$coefficients[1][[1]],
+  beta = ols_fit$coefficients[2][[1]],
+  x = data$x, 
+  y = data$y)
+```
+
+Plot the cost function across different values of beta.
+
+```{r}
+simulations = c()
+
+for (i in -30:30){
+  mse = cost_function(
+  alpha = 18,
+  beta = i,
+  x = data$x, 
+  y = data$y
+  )
+  
+  simulations = c(simulations, mse)
+}
+
+```
+
+
+```{r}
+plot(x=-30:30, y=simulations)
+```
+Create a function gradient_desc that compute the gradient of the model depending on beta.
+
+```{r}
+gradient_desc <- function(alpha, beta, x, y){
+  grad_beta <- 
+  return (grad_beta)
+}
+```
+
+
+```{r}
+gradient_desc(
+  alpha = 18,
+  beta = 0.0,
+  x = data$x, 
+  y = data$y
+)
+```
+TODO: create a gradient descent step.
+
+```{r}
+delta <- 0.001
+
+minimize_function <- function(alpha, beta, x, y, delta){
+  new_beta <- 
+  return(new_beta)
+}
+```
+
+
+```{r}
+iter <- 100
+res <- c(0)
+
+for (i in 2:iter){
+  this_beta = res[i-1]
+  res[i] <- minimize_function(
+    alpha = alpha, beta = this_beta, x = data$x, y = data$y, delta = delta
+  )
+}
+
+res <- lapply(res, function(x) as.data.frame(t(x))) %>% bind_rows()
+colnames(res) <- c('beta')
+
+loss <- res %>% as_tibble() %>% rowwise() %>%
+  summarise(sse = cost_function(18, beta, data$x, data$y))
+
+res <- res %>% bind_cols(loss) %>%
+  mutate(iteration = seq(1, 100)) %>% as_tibble()
+
+res %>% glimpse()
+```
+
+```{r}
+ggplot(res, aes(x = iteration, y = sse)) + geom_point(size = 2) + 
+  theme_classic() + geom_line(aes(group = 1)) 
+```
+```{r}
+ggplot(data, aes(x = x, y = y)) + 
+  geom_point(size = 2) + 
+  geom_abline(aes(intercept = alpha, slope = beta),
+              data = res, size = 0.5, color = 'red') + 
+  theme_classic() + 
+  geom_abline(aes(intercept = alpha, slope = beta), 
+              data = res %>% slice_head(), size = 0.5, color = 'blue') + 
+  geom_abline(aes(intercept = alpha, slope = beta), 
+              data = res %>% slice_tail(), size = 0.5, color = 'green')
+```
+
