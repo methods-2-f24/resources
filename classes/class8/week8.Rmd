@@ -1,0 +1,64 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# A method to find the first and second order derivatives in R
+```{r}
+# first derivative
+D(f,'x')
+
+# second derivative
+D(D(f,'x'),'x')
+```
+
+## 6.4
+Do this one by hand ;)
+
+## 6.7
+Do this one by hand 
+
+## 6.9
+Do this one by hand
+
+## 6.1
+Graph the functions for a sanity check
+### a)
+
+### b) 
+
+### c)
+
+### d) 
+
+## Determine if the following functions are differentiable
+$$
+f(x, y)=\frac{10 x^2 \cdot e^y}{2 y}
+$$
+
+$$
+g(x,y) = ln(x) + 10 \cdot y
+$$
+$$
+j(x, y)=x^2+y^2
+$$
+$$
+h(x, y)=\frac{x^2+y}{e^x+y}
+$$
+
+## Determine the gradients of the following functions
+$$
+f(x, y)=10 x^2+e^y
+$$
+$$
+f(x,y) = x^3+10 \cdot x \cdot y + 4 \cdot y + 20 
+$$
+$$
+f(x, y)=\sin \left(x^2+5+y\right)
+$$
+
+## Describe what the Hessian is and name at least one of its characteristics
+
+## Why are gradients important?
+Gradients are the foundation for some of the most important concepts in machine learning.
+They are key to how for instance a neural network learns by finding by approaching a minimum in the so-called loss function.
+If you are further interested in this I highly recommend this series: https://www.youtube.com/watch?v=IHZwWFHWa-w
