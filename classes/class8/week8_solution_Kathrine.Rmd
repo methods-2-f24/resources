@@ -1,0 +1,169 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+# A method to find the first and second order derivatives in R
+```{r}
+# first derivative
+#D(f,'x')
+
+# second derivative
+#D(D(f,'x'),'x')
+```
+## 6.4
+Do this one by hand ;)
+
+## 6.7
+Do this one by hand 
+
+## 6.9
+Do this one by hand
+
+## 6.1
+Graph the functions for a sanity check
+### a)
+First we find the second derivative:
+```{r}
+f = expression(1/x)
+
+D(D(f,'x'),'x')
+```
+We then investigate when the second order derivative is positive and negative
+```{r}
+2 * 1/(1^2)^2 # convex for positive 
+2 * (-1)/((-1)^2)^2 # concave for negative
+
+# Det er ikke et inflection point
+2 * 0/(0^2)^2
+```
+We see that the second derivative changes sign on either side on 0 on the x-axis. Thus, it is convex on the positive range of x and it is concave on the negative range.
+```{r}
+x = seq(-1,1,by = .1)
+
+plot(x, 1/x, type = 'l')
+plot(x, 2 * x/(x^2)^2, type = 'l')
+```
+### b) 
+We first look at the second order derivative
+```{r}
+f = expression(x^3)
+
+D(D(f,'x'),'x')
+```
+
+As the second order derivative is f(x) = 6*x then the inflection point is (0,0) and the the function is concave in $[-\infty,0]$ and convex in $[0, \infty]$
+
+```{r}
+x = seq(-5,5,by = .1)
+
+plot(x, x^3, type = 'l')
+plot(x, 6*x, type = 'l')
+```
+### c)
+It is seen that the second order derivative is $f^{\prime \prime}(x) \geq 0$ and thus it is convex
+```{r}
+f = expression(x1^2+4*x1+8)
+
+D(D(f,'x1'),'x1')
+```
+```{r}
+x = seq(-50,50,by = 1)
+
+plot(x, x^2+4*x+8, type = 'l')
+abline(h=0, col = 'blue')
+```
+
+
+### d) 
+It is concave because $f^{\prime \prime}(x) \leq 0$ 
+```{r}
+f = expression(-x2^2-9*x2+16)
+
+D(D(f,'x2'),'x2')
+```
+```{r}
+x = seq(-20,20,by = 1)
+
+plot(x,-x^2-9*x+16, type = 'l')
+abline(h=0, col = 'blue')
+```
+
+### e) 
+This one I recommend differentiating by hand as it becomes quite messy with R as seen below...
+```{r}
+f = expression(1/(1+x3^2))
+
+D(D(f,'x3'),'x3')
+```
+$$
+\begin{aligned}
+f^{\prime}(x) & =-2 x\left(1+x^2\right)^{-2} \\
+f^{\prime \prime}(x) & =-2\left(1+x^2\right)^{-2}+8 x^2\left(1+x^2\right)^{-3} \\
+& =2\left(1+x^2\right)^{-2}\left(-1+4 x^2\left(1+x^2\right)^{-1}\right)
+\end{aligned}
+$$
+To find inflection points we can now look at when $2\left(1+x^2\right)^{-2}\left(-1+4 x^2\left(1+x^2\right)^{-1}\right)$ is equal to zero. 
+
+```{r}
+x = seq(-2,2,by = .01)
+plot(x,1/(1+x^2), type = 'l')
+plot(x, -(2/(1 + x^2)^2 - 2 * x * (2 * (2 * x * (1 + x^2)))/((1 + 
+    x^2)^2)^2), type = 'l')
+```
+
+## Determine if the following functions are differentiable
+$$
+f(x, y)=\frac{10 x^2 \cdot e^y}{2 y}
+$$
+If the function is differentiable then its derivative exists in every point. Thus, this function is not differentiable in $y = 0$.
+
+$$
+g(x,y) = ln(x) + 10 \cdot y
+$$
+It is differentiable at every point except for $x = 0$ becaue $ln(0)$ is undefined.
+
+$$
+j(x, y)=x^2+y^2
+$$
+This function is differentiable as its derivative exists in every point.
+
+$$
+h(x, y)=\frac{x^2+y}{e^x+y}
+$$
+This function is differentiable as its derivative exists in every point.
+
+## Determine the gradients of the following functions
+$$
+f(x, y)=10 x^2+e^y
+$$
+$$
+f(x,y) = x^3+10 \cdot x \cdot y + 4 \cdot y + 20 
+$$
+
+$$
+f(x, y)=\sin \left(x^2+5+y\right)
+$$
+
+## Describe what the Hessian is and name at least one of its characteristics
+The Hessian matrix of a function $f(\mathbf{x})$ is the matrix of all the second-order partial derivatives of a function where the input is a vector $\mathbf{x}$ it give describes the local curvature of a multi-variable function.
+$$
+\mathbf{H}_f=\left[\begin{array}{cccc}
+\frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\
+\frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \cdots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_n^2}
+\end{array}\right]
+$$
+One characteristic of the Hessian is that it is a symmetric matrix
+
+## Why are gradients important?
+Gradients are the foundation for some of the most important concepts in machine learning.
+They are key to how for instance a neural network learns by finding by approaching a minimum in the so-called loss function.
+If you are further interested in this I highly recommend this series: https://www.youtube.com/watch?v=IHZwWFHWa-w
+
+
+
+
+
