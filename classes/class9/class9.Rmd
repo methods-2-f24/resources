@@ -1,0 +1,250 @@
+---
+title: "Class9"
+author: "Kathrine Schultz feat Pernille Brams"
+date: "17/4/2024"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+---
+
+# Optimization using the optim() function
+Optimization is used in many fields and its goal is to find the best possible value or combination of values with regard to some function, and it is incredibly useful.
+
+There are multiple R functions that can perform optimization. However, this course focuses on the optim() function.
+
+The optim() function in R is a minimization tool. It's goal is to the find x in a given function which minimizes f(x).
+
+## Maximum Likelihood Estimation (MLE) and optimisation
+Maximum Likelihood Estimation (MLE) is a method used to estimate the parameters of a statistical model. *Is it then just an alternative to OLS which we saw in Pernilles video/class7 as a way to find intercept/slope for a line fit to some data?* Yes, it's an alternative. The goal of OLS is to minimise the sum of the squares of the differences between the observed values and the values predicted by the model (the residuals), where MLE is a more general estimation method that can be used for a wide variety of models, not just linear regression.
+It seeks to maximise the likelihood function, which represents the probability of the observed data given a set of parameters.
+
+MLE involves finding the parameter values that maximise the likelihood function, given the observed data. *What is the likelihood function?* The likelihood function is like a detective's tool that takes your guess and tells you, "Given the data you've seen, here's how likely it is that your guess about the data and their origin is right." In other words, it is a fundamental concept in statistical inference, particularly in the context of MLE, and it's a function of the parameters of a statistical model that measures the probability of the observed data under those parameters.
+
+The process of MLE (finding params that maximise likelihood function given the data) is inherently an optimisation problem where the goal is to find the parameter values that produce the highest likelihood of observing the given data. In that way it's very Bayesian-y to think this way.
+
+### Relationship with Linear Models and Derivatives
+In the context of linear models, MLE can be used to find the best-fitting line by maximizing the *likelihood function*, which in many cases (like with normally distributed errors) equates to minimising the Residual Sum of Squares (RSS) (remember this from OLS?). This is directly connected to optimisation and the use of derivatives to find minimum or maximum values.
+
+## Polynomial()
+Let us start out by showing an example of one polynomial function. 
+
+```{r}
+# We first define our function, in our case it is a polynomial expression. 
+polynomial <- function(x){
+  f_x <- 10*x^2 + 2*x + 30 
+  return(f_x)
+}
+x_plot <- seq(-10,10, by = .05)
+#plot the function as a line (type = "l"). 
+plot(x_plot, polynomial(x_plot), type = "l", xlab = 'x', ylab = 'f(x)')
+```
+
+**Questions:**
+- Using what we know about derivatives how would we find any local maximum and minimum points?
+- When having found an extremum how can you be sure if it's a min or max? (Think in terms of higher order (e.g. second) derivatives)
+
+## Using the optim() function
+Let's look at how we can find the local minimum using the optim() function in R
+```{r}
+#check out ?optim()
+?optim()
+```
+
+We can see that the function takes the following arguments, optim(par = initial values, fn = function to minimize, method = "Which algorithm to use", lower = "lower bound", upper = "upper bound".)
+
+
+```{r}
+#How to find the local minimum using optim function()
+
+#Without derivative method (with bounds)
+optim(1, fn = polynomial, method= "Brent", lower = -10, upper = 10)
+```
+We get several different outputs. \$par indicates the x values which minimized f(x), and \$value indicates what the f(x) values is at the point x which minimized f(x).
+
+```{r}
+# with derivative (without bounds)
+optim(1, fn = polynomial, method = "CG")
+```
+We can see that using an algorithm which uses the derivatives is slightly different in its estimates of $x$ which minimize f(x). While it isn't as precise and is more of an estimate it has the advantage of not requiring a lower and upper boundary.
+
+## Sinus function. 
+We know that a sinus function has several minimums and maximums so how does the optim() function deal with that? We will follow the same procedure as before, first define the function then try and optimize it. 
+```{r}
+sin_function <- function(x){
+  f_x <- sin(x)
+  return(f_x)
+}
+x <- seq(-10,10 , by = .05)
+plot(x,sin_function(x), type = "l")
+```
+
+In the definition set of $d_f = (-10:10)$ we can see that there is roughly 3 local minimum. *1)* around x= 5, *2)* around x= -2, *3)* around x= -8. 
+
+```{r}
+# optim() will always find the local minimum which is the closest to the starting value.  
+x = -10
+repeat{
+  print(paste("for x = ", x," the closest minimum is at x =",optim(x, sin_function, method = "CG")$par))
+  x = x +1
+  if (x > 10) break("X limit reached")
+}
+```
+## Using optim for multidimensional optimization
+
+Consider the following multidimensional function
+```{r}
+f <- function(x1,y1){
+ f_x <- (1-x1)^2 + 100*(y1- x1^2)^2
+ return(f_x)
+}
+x <- seq(-2,2,by=.15)
+y <- seq(-1,3,by=.15) 
+z <- outer(x,y,f) #All possible combination of x,y is used to calculate all possible f(x,y) = z. 
+#how to plot 3D
+persp(x,y,z,phi=45,theta=-45,col="green",shade=.00000001,ticktype="detailed")
+```
+
+When then using the optim() function for multidimensional optimization then the input has to be a multidimensional vector
+```{r}
+f <- function(x){
+  f_x <- (1-x[1])^2 + 100*(x[2]-x[1]^2)^2
+  return(f_x)
+} 
+optim(c(0,0) , f)
+```
+
+From the optimization above we can see that the minimum that is closest to (x = 0, y = 0) is around (x = 1, y = 1). Can we be sure that is the global minimum? Not as it currently stands, we could modify our algorithm to look broader or do some weighted search but this is one of the big issues with optimizers. 
+
+## Using optim for RSS on a simple linear regression
+We've been introduced to normal lm() linear regression function. But linear regression isn't just linear regression. There exist many different approaches and criteria for which that algorithm should optimize. One approach is the least squares method which tries to minimize error term $\epsilon_i = y_i - (a+b x_i) $. We cannot work with the error term directly since this would require us to know the true estimates of a and b. However, we know the estimates of a and b which we can denote as $\hat{a}$. The goal is therefore to minimize the residuals   $r_i = y_i -(\hat{a} + \hat{b}x_i)$. More precisely the residual sum of squares (RSS). In a machine learning framework we would call the RSS = f(x) our cost-function or loss-function. We wanna minimize our cost/loss when doing regression.
+
+We can now optimize the RSS of a simple regression model with an intercept and 1 predictor. Imagine that the x-axis is the different slope values and the y-axis is the different intercepts and the z-axis is our cost/loss. We now want to find the intercept and slope or in other words the x and y-values which minimizes our RSS or z-axis. All we need to do is create a function which calculates RSS based on our $\theta , X ,y$.
+
+
+```{r}
+set.seed(101) # random seed to reproduce results
+n <- 1e2
+x <- rnorm(n, 20, 2) # so this is 1e2x1 predictor matrix 
+y <- rnorm(n, mean = x *2, sd  =1 )                   # this is our outcome variable, a 1e2x1 vector
+X_matrix <- cbind(rep(1, 100), x)      # adding a column of 1s as intercept to the design matrix X (1e2 x 1)
+theta <- rep(0,2)               # set up the initial theta 2 x 1 vector
+```
+
+```{r}
+loss_function <-function(X, y, par){  
+  n <- length(y)
+  loss <- sum((X%*%par - y)^2)/(n-length(par))
+return(loss) 
+}
+```
+
+```{r}
+coef <- optim(par = theta, fn = loss_function , X = X_matrix, y = y, method = "BFGS")
+coef$par
+```
+
+We now have the two point estimates of our intercept: -1.1967 and slope: 2.057. But we know from methods 1 that there is uncertainty denoted as the SE surrounding these coefficients. The standard error for the slope can for instance be found using
+
+$$
+SE\left(b\right)=\sqrt{\frac{1}{n-2} \cdot \frac{\sum\left(y_i-\hat{y}_i\right)^2}{\sum\left(x_i-\bar{x}\right)^2}}
+$$
+
+```{r}
+SE_beta_calc <- function(X,y,theta){
+  n <- length(y)
+  x <- X[,2]
+  y_hat <- X %*% theta
+  
+  SE_beta <- ((1/(n-2)) *  (sum((y - y_hat)^2))/sum((x-mean(x))^2))
+  return(sqrt(SE_beta))
+}
+SE_beta_calc(X_matrix, y , coef$par)
+```
+Using lm() we can see that this yields the same result.
+
+```{r}
+summary(lm(y~ x))
+```
+
+# Exercises on the optim() function
+
+1) Choose a mathematical function with e.g. 2-4 minima.
+
+  a) Hard code the function into R and plot it.
+  hint 1*
+
+  b) Find the 4 minimums using the optim() function. 
+
+
+  c) Check if the they are indeed minimums using the second derivative rule we learned in class. 
+
+  
+  d) Find the maximums or in other words, find the x's with maximizes f(x).
+  hint 2*  
+
+2) Using the above introduction to the linear regression using optim().
+
+  a) Create Nx5 design matrix with the intercept and 4 different predictors. 
+
+  
+  b) Simulate y dependent on the design matrix. (Hint: Make y dependent on all the different predictors.) don't forget to add some error. 
+
+  c) Create a loss function which we want to minimize (I would suggest RSS or MSE to start with.) 
+  
+
+  d) Use optim() to find the beta coefficients which minimizes our cost function. 
+
+
+## Exercises from ROS chapter 6
+
+**6.2** Programming fake-data simulation: Write an R function to: (i) simulate n data points from the model, y = a + bx + error, with data points x uniformly sampled from the range (0, 100) and with errors drawn independently from the normal distribution with mean 0 and standard deviation σ; (ii) fit a linear regression to the simulated data; and (iii) make a scatter plot of the data and fitted regression line. Your function should take as arguments, a, b, n, σ, and it should return the data, print out the fitted regression, and make the plot. Check your function by trying it out on some values of a, b, n, σ.
+
+**6.3** Variation, uncertainty, and sample size: Repeat the example in Section 6.2, varying the number of data points, n. What happens to the parameter estimates and uncertainties when you increase the number of observations?
+
+hint 3*
+
+**6.4** (challenging) Simulation study: Perform the previous exercise more systematically, trying out a sequence of values of n, for each simulating fake data and fitting the regression to obtain estimate and uncertainty (median and mad sd) for each parameter. Then plot each of these as a function of n and report on what you find.
+
+
+## Exercises from chapter 8
+
+**8.1**
+Least squares: The folder ElectionsEconomy contains the data for the example in Section 7.1.
+Load these data, type in the R function rss() from page 104, and evaluate it at several different
+values of a and b. Make two graphs: a plot of the sum of squares of residuals as a function of a,
+with b fixed at its least squares estimate given in Section 7.1. Confirm that the residual
+sum of squares is indeed minimized at the least squares estimate.
+
+```{r}
+# Loading the data
+remotes::install_github("avehtari/ROS-Examples",subdir = "rpackage")
+library(rosdata)
+```
+
+```{r}
+# This is the elections economy data set
+hibbs
+```
+
+
+**8.3**
+Least absolute deviation: Repeat 8.1, but instead of calculating and minimizing the sum of
+squares of residuals, do this for the sum of absolute values of residuals. Find the (a,b) that
+minimizes the sum of absolute values of residuals, and plot the sum of absolute values of residuals
+as a function of 0 and of 1. Compare the least squares and least absolute deviation estimates of (a,b).
+
+hint 1* Think in terms of factorization. If you are completely out of ideas use:  f <- (1/200) * (x+4) * (x+3) * (x+2) * (x+1) * (x-1) * (x-2) * (x-3) * (x-4)
+
+hint 2* Optim() always minimizes the return() so maybe switch the sign? How can max become min?
+
+hint 3* You can use the following commands to extract the coefficient estimates and their standard errors
+```{r}
+fit_1 <- stan_glm(y ~ x, data=fake)
+print('coefficients')
+print(fit_1[["coefficients"]])
+print('standard errors')
+print(fit_1[["ses"]])
+```
+
