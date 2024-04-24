@@ -1,0 +1,284 @@
+---
+title: "Class 10, GHV Exercise 9.1"
+author: "Kathrine Schultz, Christ Mathys feat Pernille Brams"
+date: "24/4/2024"
+output:
+  pdf_document:
+    toc: true
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup
+```{r}
+library(pacman)
+pacman::p_load(tidyverse,
+               rstanarm,
+               bayesplot,
+               RColorBrewer)
+
+# Setting some colors
+colours <- brewer.pal(n = 8, name = 'Set1')
+
+# And setting a seed bc nice and reproducible
+set.seed(0) 
+```
+
+# Implementing OLS by hand and comparing with lm()
+In this exercise we implement the analytical OLS solution. Remember Pernille's video? https://youtu.be/jxAY6JBsC0I #like and #subscribe
+
+$$
+\hat{\beta}=\left(X^t X\right)^{-1} X^t y
+$$
+and we compare it with the output from the lm() function in R.
+We also further familiarize ourselves with the notation of linear model on matrix form.
+
+## Generate random numbers
+
+First we generate a tibble with one column containing values drawn from the standard Gaussian distribution $\mathcal{N}(0,1)$.
+
+```{r}
+data <- tibble(y = rnorm(10000))
+```
+
+```{r}
+quantile(data$y)
+```
+**Exercise**
+Check whether this looks like a Gaussian by plotting density plot and a qq-plot.
+
+```{r}
+# Your solution goes here
+```
+
+## Construct a general linear model (GLM)
+
+The GLM has the form $$\mathbf{y} = \mathrm{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$$ with $$\mathbf{y} = \begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix}, \quad \mathrm{X} = \begin{bmatrix} 1 & x_1 \\ 1 & x_2 \\ \vdots & \vdots \\ 1 & x_n \end{bmatrix}, \quad \boldsymbol{\beta} = \begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix}, \quad \boldsymbol{\varepsilon} = \begin{bmatrix} \varepsilon_1 \\ \varepsilon_2 \\ \vdots \\ \varepsilon_n \end{bmatrix}.$$
+
+First, we construct the design matrix $\mathrm{X}$.
+
+```{r}
+n <- 10
+const <- rep(1,n)
+x <- 1:10
+X <- cbind(const, x)
+X
+```
+
+Then we choose the coefficient vector $\boldsymbol{\beta}$.
+
+```{r}
+b <- c(2, 0.5)
+b
+```
+
+Multiplying $\mathrm{X}$ and $\boldsymbol{\beta}$ gives us noiseless observations $\mathbf{y}^*$. These observations are on a straight line with intercept $\beta_0$ and slope $\beta_1$.
+
+```{r}
+ystar <- X %*% b
+```
+
+```{r}
+tibble(x, ystar) %>% 
+    ggplot(aes(x = x, y = ystar)) +
+    geom_abline(intercept = b[1], slope = b[2]) +
+    geom_point(colour = colours[2]) +
+    coord_fixed(xlim = c(0,10), ylim = c(0,10)) +
+    labs(y = "y")# +
+    #scale_colour_brewer(palette = "Set1")
+```
+
+However, real observations are noisy. Therefore, we complete our model by generating an error vector $\boldsymbol{\varepsilon}$ and adding it onto $\mathbf{y}^*$. This generates our observations $\mathbf{y}$.
+
+```{r}
+set.seed(0)
+err = rnorm(10)
+err
+```
+
+```{r}
+y <- X %*% b + err
+y
+```
+```{r}
+data <- tibble(x = X[,2], y = y[,1])
+data
+```
+
+```{r}
+bind_rows(data, bind_cols(x = x, y = ystar[,1]), .id = "noise") %>%
+    ggplot(aes(x = x, y = y, colour = factor(noise, labels = c("y", "ystar")))) +
+    geom_abline(intercept = b[1], slope = b[2]) +
+    geom_point() +
+    coord_fixed(xlim = c(0,10), ylim = c(0,10)) +
+    labs(colour = "Noise") +
+    scale_colour_brewer(palette = "Set1")
+```
+
+## Estimate $\boldsymbol{\beta}$ using the OLS estimator
+
+The OLS estimator gives us the estimate $\hat{\boldsymbol{\beta}}$ for $\boldsymbol{\beta}$ as a function of $\mathrm{X}$ and $\mathbf{y}$.
+
+**Exercise**
+Use the analytical OLS solution (see page 103 in ROS) to estimate $\hat{\boldsymbol{\beta}}$. It might help to do this step-by-step.
+hint1*
+
+Now, let's see how the regression line we've estimated (with intercept $\hat{\beta}_0$ and slope $\hat{\beta}_1$) differs from the regression line we used to generate the data (with intercept $\beta_0$ and slope $\beta_1$). In the plotting function below uncomment the 4th line and bhat[1] and bhat[2] with your own estimates of $\hat{\beta}_0$ and $\hat{\beta}_1$.
+
+```{r}
+ggplot(data, aes(x = x, y = y)) +
+    geom_point(colour = colours[1]) +
+    geom_abline(intercept = b[1], slope = b[2]) +
+    #geom_abline(intercept = bhat[1], slope = bhat[2], colour = colours[1]) + 
+    coord_fixed(xlim = c(0,10), ylim = c(0,10))
+```
+
+## Comparison with `lm()`
+**Exercise** 
+Make a linear regression fit using lm() and compare with the $\hat\beta$-values from the OLS solution.
+
+```{r}
+# Your solution goes here
+```
+
+# 1. Regression: grade point average and household income
+The following exercise is loosely based on 9.1 on ROS. The purpose is to perform linear regression with using bayesian inference tools to assess uncertainty.
+
+## Choose a ground truth model
+We want to regress grade point average (GPA) $y$ on household income $x$, but in 9.1 we're free to come up with a ground truth model. Defining this model means making three choices:
+
+1.  Slope $\beta_1$
+2.  Intercept $\beta_0$
+3.  Error standard deviation $\sigma$
+
+In order to make these choices, let's first think about plausible ranges for $x$ and $y$. GPAs range from 0.0 to 4.0, and for our model we'll assume the mean is 2.7. Household income varies very widely, but the median in the US is around \$65,000. So a reasonable assumption might be that the median income predicts the mean GPA, and that every additional \$20,000 in household income adds 0.1 to the predicted GPA. 
+
+Expressing $x$ in thousands of dollars and using the assumptions that we made. A linear model describing the relationship could be defined as
+
+Solution:
+$$\begin{align}
+y &= 2.7 + \frac{0.1}{20}(x - 65) \\[1em]
+&= 2.7 + 0.005x - 0.325 \\[1em]
+&= 2.375 + 0.005x
+\end{align}$$
+
+This means that our choices for intercept and slope are
+
+$$\boldsymbol{\beta} = \begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix} = \begin{bmatrix} 2.375 \\ 0.005 \end{bmatrix}$$
+
+```{r}
+b <- c(2.375, 0.005)
+```
+
+## Simulate and estimate
+With the slope and intercept estimated leaves us with the choice of error standard deviation. While we assume household income to be somewhat predictive of GPA, we don't expect it to allow very precise predictions since there will be other, more important influences. A sensible choice might be $\sigma = 0.4$.
+
+```{r}
+sigma <- 0.4
+```
+
+**Exercise**
+Now sample 256 simulated GPAs for household incomes uniformly from \$15,000 to \$300,000.
+Plot the sampled data along with a regression line using the slope and intercept from before. Remember to add the error term.
+
+```{r}
+# Your solution goes here
+```
+
+**Exercise**
+Now use `stan_glm()` to fit a regression line through our scatter plot. If you want inspect the summary :) 
+
+```{r}
+# Your solution goes here
+```
+
+Using the function `mcmc_areas()` from the `bayesplot` package, we can plot the posterior densities from the stan_glm estimation. 
+
+**Exercise**
+Discuss with your neighbor, what are the posterior distributions below showing. In order for the code to work the fit1 should be the name of your stan_glm fit above.
+
+Here we plot them separately as they are on very different scales in our case.
+
+```{r}
+mcmc_areas(fit1, pars = "(Intercept)", prob = 0.5, prob_outer = 1)
+mcmc_areas(fit1, pars = "x", prob = 0.5, prob_outer = 1)
+mcmc_areas(fit1, pars = "sigma", prob = 0.5, prob_outer = 1)
+```
+
+Now let's add the fitted regression line to our plot.
+```{r}
+sim %>% ggplot(aes(x = x, y = y)) +
+    geom_point() +
+    geom_abline(intercept = b[1], slope = b[2], colour = colours[1]) +
+    geom_abline(intercept = coef(fit1)[1], slope = coef(fit1)[2], colour = colours[2])
+```
+
+## Predict
+Based on our fit, we can now predict GPA for household incomes of \$40,000 and \$80,000. For that purpose, we need a data frame containing the 'new' values we want predictions for.
+
+```{r}
+(new <- tibble(x = c(40, 80)))
+```
+
+First, we calculate the point predictions. That is what are the corresponding y-values (GPA's) for the x-values (household incomes of \$40,000 and \$80,000)
+
+**Exercise** 
+Use the predict() function along with fit1 to make point predictions
+
+```{r}
+# Your solution goes here
+```
+
+Your point predictions are calculated using our fitted regression line, and both the intercept and slope of that are uncertain. This uncertainty should be reflected in our predictions. We can achieve this with the function `posterior_linpred()`.
+
+```{r}
+y_linpred <- posterior_linpred(fit1, newdata = new)
+mcmc_areas(y_linpred) +
+    labs(title = "Linear predictor distributions",
+         x = "Predicted GPA",
+         y = "Household income") +
+    scale_y_discrete(labels = c("1" = "$40k", "2" = "$80k"))
+```
+
+If we additionally want to include the uncertainty associated with predicting an *individual's* GPA from their household income, we use the function `posterior_predict`.
+
+```{r}
+y_pred <- posterior_predict(fit1, newdata = new)
+mcmc_areas(y_pred) +
+    labs(title = "Linear predictor distributions",
+         x = "Predicted GPA",
+         y = "Household income") +
+    scale_y_discrete(labels = c("1" = "$40k", "2" = "$80k"))
+```
+As we can see, the uncertainty associated with predicting individual GPAs is much greater than for the linear predictor. This leads to a substantial overlap between the two distributions.
+
+Finally, we can look at what difference in GPA our model predicts for people from households with incomes of \$40,000 and \$80,000. There are two very different questions we can ask here. First, we can ask how much of a difference between *the mean GPAs* in the two groups our model predicts. Second, we can ask what the distribution of GPA differences is predicted to be for *two individuals randomly sampled* from each of the household income groups.
+
+```{r}
+diff <- tibble(mean_diff = y_linpred[,2] - y_linpred[,1],
+               indiv_diff = y_pred[,2] - y_pred[,1])
+mcmc_areas(diff) +
+    labs(title = "Distributions of differences",
+         x = "Difference in GPA means") 
+```
+
+**Exercise** 
+Discuss the above plot with your neighbor. What can we say about the difference of the means in the two groups, and what can we say about the difference between two randomly sampled individuals? Is this what we would expect?
+
+```{r}
+# Your solution goes here
+```
+
+hint1*: Remember that you can transpose a matrix using t() and that solve() gives you the inverse matrix.
+
+**Optional Exercises**
+
+-   According to our fitted model, what is the probability that an individual from the \$80k group has a higher GPA than one from the \$40k group?
+
+-   According to our fitted model, what is the probability that the mean GPA in \$80k group is higher than that in the \$40k group?
+
+-   If we throw the two groups together and look only at the 3% with the highest GPA's, what proportion of them is predicted to be from the \$80k group?
