@@ -1,0 +1,99 @@
+---
+title: "week-10"
+author: "Nicolas Legrand"
+date: "2024-04-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("rstanarm")
+library("ggplot2")
+library("bayesplot")
+library("tidyverse")
+```
+
+## Week 10 - Time series forecasting
+
+1.
+
+We want to build a model that can predict the level of employment according to the evolution of other economic factors. We start with simulating the data set. Employment here is defined as a linear combination of gold price, gas price and economic growth.
+
+
+```{r cars}
+gold = sin(1:1000 * 0.1) + rnorm(1000, 0, .5)
+gas = sin(1:1000 * 0.02) + rnorm(1000, 0, .25)
+growth = sin(1:1000 * 0.4) + rnorm(1000, 0, .1)
+
+intercept =
+beta_1 =
+beta_2 =
+beta_3 =
+
+plot(employment)
+```
+
+2.
+
+Save the simulated data set in a data frame with a time index.
+
+```{r}
+data = data.frame(
+
+  )
+```
+
+3.
+
+Using the stan_glm function, use Bayesian inference to try to recover the values of the parameters of interest.
+
+```{r}
+model = 
+```
+
+4.
+
+Several functions can be used to inspect the quality of the sampling (and therefore the inference). What are we seeing on the following plots?
+
+
+```{r}
+color_scheme_set("mix-brightblue-gray")
+mcmc_trace(model) + 
+  xlab("Post-warmup iteration")
+```
+
+```{r}
+mcmc_pairs(model)
+```
+
+```{r}
+model_ppc = stan_glm( , data=data, refresh = 0, prior_PD = TRUE)
+```
+
+
+```{r}
+y = employment
+yrep = posterior_predict(model_ppc, draws = 500)
+ppc_dens_overlay(y, yrep)
+```
+
+```{r}
+y = employment
+yrep = posterior_predict(model, draws = 500)
+ppc_dens_overlay(y, yrep)
+```
+
+5.
+
+Using the examples from the book, try to come up with a point prediction, a linear predictor with uncertainty and the predictive distribution for new observations for a set of unobserved data. Then try to plot the uncertainty interval on top of the line (see example of code below). You should fit the model e.g. on the first 950 observations, and then try to predict the remaining 50.
+
+
+```{r}
+data %>% 
+  ggplot(aes(time, employment)) + 
+  geom_ribbon(aes(ymin = value - std,
+                  ymax = value + std),
+              fill = "steelblue2") +
+  geom_line(color = "firebrick", size = 1)
+```
+
