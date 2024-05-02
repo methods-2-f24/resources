@@ -1,0 +1,284 @@
+---
+title: "week-10"
+author: "Nicolas Legrand"
+date: "2024-04-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("rstanarm")
+library("ggplot2")
+library("bayesplot")
+library("tidyverse")
+```
+
+## Week 10 - Time series forecasting
+
+1.
+
+We want to build a model that can predict the level of employment according to the evolution of other economic factors. We start with simulating the data set. Employment here is defined as a linear combination of gold price, gas price and economic growth.
+
+
+```{r cars}
+# Simulating predictor variables
+gold = sin(1:1000 * 0.1) + rnorm(1000, 0, .5)
+gas = sin(1:1000 * 0.02) + rnorm(1000, 0, .25)
+growth = sin(1:1000 * 0.4) + rnorm(1000, 0, .1)
+
+# Coefficients and intercept
+intercept = 2   # Hypothetical intercept
+beta_1 = 0.5    # Coefficient for gold
+beta_2 = -0.3   # Coefficient for gas
+beta_3 = 1.2    # Coefficient for growth
+
+# Simulating employment as a linear combination of gold, gas, and growth
+employment = intercept + beta_1 * gold + beta_2 * gas + beta_3 * growth + rnorm(1000, 0, 1)
+
+# Plotting the simulated employment data
+plot(employment, type = 'l', main = "Simulated Employment Data", ylab = "Employment Level", xlab = "Time")
+
+
+```
+
+2.
+
+Save the simulated data set in a data frame with a time index.
+
+```{r}
+# Adding variables and a time index by sequencing along the length of the employment variable
+data = data.frame(employment,
+                  gas,
+                  gold,
+                  growth,
+                  time = seq(length(employment))
+
+  )
+```
+
+3.
+
+Using the stan_glm function, use Bayesian inference to try to recover the values of the parameters of interest.
+
+```{r}
+# Fitting model
+model = stan_glm(employment ~ gas + gold + growth, 
+                 data = data, 
+                 family = gaussian(), 
+                 prior = normal(0, 2.5), 
+                 chains = 4, 
+                 iter = 2000)
+
+# Conducting posterior predictive checks
+pp_check(model)
+```
+## Pernille run-through: 
+### Prior predictive checks, fitting, and posterior predictive checks
+#### 1) Prior pred check
+```{r}
+# Define the number of simulations
+n_sims <- 1000
+
+# Assuming priors as Normal(0, 2.5)
+beta_gas <- rnorm(n_sims, mean = 0, sd = 2.5)
+beta_gold <- rnorm(n_sims, mean = 0, sd = 2.5)
+beta_growth <- rnorm(n_sims, mean = 0, sd = 2.5)
+intercept <- rnorm(n_sims, mean = 0, sd = 2.5)
+
+# We can simulate some data:
+gas_sim <- rnorm(n_sims)
+gold_sim <- rnorm(n_sims)
+growth_sim <- rnorm(n_sims)
+
+# Generate outcome data based on the simulated parameters
+employment_sim <- intercept + beta_gas * gas_sim + beta_gold * gold_sim + beta_growth * growth_sim
+
+# Plot the results to visualize the prior predictive distribution
+hist(employment_sim, main = "Prior Predictive Distribution of Employment", xlab = "Simulated Employment Levels")
+
+```
+This approach gives us the flexibility to specify exactly how we want our priors to behave and to explore their impact without any influence from the data. The bell shape of the histogram with its center around zero suggests that the priors are not overly informative and do allow for a broad range of employment outcomes based on the predictors. If the spread seems too wide or too narrow, or if the central tendency does not align with theoretical expectations (for instance, if we expect employment to generally not be zero), we may need to adjust the mean or the standard deviation of our priors. This visualization effectively shows what the model would predict without any real data influencing the outcomes. It is purely based on our assumptions (priors) about how strongly each predictor (gas, gold, and growth) influences employment.
+
+#### 2) Fitting model
+```{r}
+# Fitting model
+model = stan_glm(employment ~ gas + gold + growth, 
+                 data = data, 
+                 family = gaussian(), 
+                 prior = normal(0, 2.5), 
+                 chains = 4, 
+                 iter = 2000)
+
+
+summary(model)
+```
+Here's a bunch of info. Let's unpack it: 
+
+##### Model information
+- **Function and Family**: The model used the `stan_glm` function with a Gaussian family and an identity link function, suitable for continuous outcome data.
+- **Formula**: The formula specified that employment is predicted based on gas, gold, and growth.
+- **Algorithm**: The sampling algorithm was used for Bayesian inference.
+- **Sample size**: The posterior sample size is 4,000, indicating the number of draws from the posterior distribution.
+- **Observations**: The model was fitted using 1,000 data points.
+- **Predictors**: Including the intercept, there are 4 predictors in the model.
+
+###### Parameter estimates
+- **Central tendency and uncertainty**: Estimates for the intercept, gas, gold, growth, and the residual standard deviation (sigma) are provided with their means and standard deviations (sd).
+- **Quantiles**: The 10%, 50% (median), and 90% quantiles offer insights into the distribution of the estimates.
+   - The intercept is estimated around 2.0, suggesting a baseline level of employment when all predictors are zero.
+   - Gas has a negative effect on employment (-0.3), while gold (0.5) and growth (1.2) positively influence employment.
+   - Sigma, the standard deviation of the residuals, is around 1.0, indicating the variability of employment around the predicted values.
+
+###### Fit diagnostics
+- **Posterior predictive checks**: The mean of the posterior predictive distribution (mean_PPD) closely aligns with the intercept, indicating good model fit to the data based on the Gaussian assumption.
+- **MCMC diagnostics**: All parameters including `mcse` (Monte Carlo standard error), `Rhat` (potential scale reduction factor), and `n_eff` (effective sample size) show:
+   - **mcse** is very low, suggesting precision in the estimates.
+   - **Rhat** values are 1.0 for all parameters, indicating convergence of the chains, suggesting that the sampling adequately represents the posterior distribution.
+   - **n_eff** values are relatively high, which assures that the effective sample size is sufficient for reliable inferences.
+
+###### Summary
+This Bayesian model appears well-converged and robust, with the predictor effects clearly delineated. The negative coefficient for gas suggests an inverse relationship with employment, whereas both gold and growth have positive associations with employment levels. The model diagnostics reinforce confidence in the statistical validity and convergence of the model results, making them reliable for inference about the effects of these economic factors on employment.
+
+#### 3) Posterior pred check
+```{r}
+# Conducting posterior predictive checks
+pp_check(model) # Bold line is data, light blue lines are model predictions
+```
+
+## Pernille showing how to do this in BRMS :)) another nice package
+```{r}
+# install.packages("brms") # install if you don't have it
+library(brms)
+
+```
+
+### Define priors & run a prior predictive check
+When you set up a model in brms, you can specify priors directly in the model formula or separately using the set_prior function. Here’s how you can define the model and include prior predictive checks:
+
+```{r}
+# Define priors
+priors <- c(
+  set_prior("normal(0, 2.5)", class = "b"), # Priors for coefficients
+  set_prior("normal(0, 2.5)", class = "Intercept") # Prior for the intercept
+)
+
+# Fit the model
+# 'data' should be your data frame with the employment, gas, gold, and growth variables
+model_prior <- brm(formula = employment ~ gas + gold + growth,
+             data = data,
+             family = gaussian(),
+             prior = priors,
+             sample_prior = "only", # Sample only from the prior (meaning don't consider the data right now)
+             chains = 4,
+             iter = 2000)
+
+summary(model_prior)
+```
+
+After fitting the model with only prior sampling, we can conduct a prior predictive check:
+```{r}
+# Same function, but this model is only sampling from the prior
+pp_check(model_prior)+ggtitle("Prior predictive check")
+
+```
+In this plot: 
+- Black line (y): This represents the observed data's distribution
+- Blue lines (y_rep): Each of these lines represents a possible outcome generated from the model's prior distribution. These are not based on the actual data but on the predictions derived solely from the priors
+
+What we see in the prior predictive check here is no warning signs in terms of the prior predictions (blue lines) being completely off of the datas distribution. Here there's plenty of room to learn. Let's see if we can :)
+
+Now we'll fit the model without the sample only argument: 
+```{r}
+# Define priors
+priors <- c(
+  set_prior("normal(0, 2.5)", class = "b"), # Priors for coefficients
+  set_prior("normal(0, 2.5)", class = "Intercept") # Prior for the intercept
+)
+
+# Fit the model
+# 'data' should be your data frame with the employment, gas, gold, and growth variables
+model <- brm(formula = employment ~ gas + gold + growth,
+             data = data,
+             family = gaussian(),
+             prior = priors,
+             #sample_prior = "only", # Now, consider the data (commenting it out sets it on the default).
+             # This means the output you get is purely the posterior distribution, reflecting both the prior information and the 
+             # likelihood derived from the data. Use this setting for regular Bayesian analysis where you want the priors to influence              # the analysis along with the data.
+             chains = 4,
+             iter = 2000)
+
+summary(model)
+```
+
+Aight, our model is fitted now. Let's conduct a posterior predictive check, using the same command as for the prior predictive check (pp_check), but on the other model object (not model_prior, but model):
+
+```{r}
+# Same function, but this model is only sampling from the prior
+pp_check(model)+ggtitle("Posterior predictive check")
+```
+Here we see our model has learned! Notice how the predictions (blue lines) follow the data (bold line) very nicely.
+
+I like brms() because I can use pp_check for both prior and posterior predictive checks :3333
+
+```{r}
+
+# You can do plot(model) to get everything, or you can access one parameter like so:
+plot(model, 
+     pars = "b_gas")
+```
+
+
+### Continuing on the markdown
+4.
+
+Several functions can be used to inspect the quality of the sampling (and therefore the inference). What are we seeing on the following plots?
+
+
+```{r}
+color_scheme_set("mix-viridis-red") # THESE ARE humbug colors!!!!!! (but we're not really them :)))) )
+mcmc_trace(model) + 
+  xlab("Post-warmup iteration")
+```
+
+```{r}
+mcmc_pairs(model)
+```
+Use pairs plot to check for correlations between your predictors. If you have patterns, then you have to ensure the sampler didn't have too much difficulty + check if you can exclude a predictor without hurting model quality/predictions if it e.g. correlates a lot with another.
+
+```{r}
+# prior check !!!
+model_ppc = stan_glm(employment ~ gas + gold + growth, data=data, 
+                      refresh = 0, 
+                      prior_PD = TRUE) # kind of like sample_prior = "only" in brms()
+model_ppc
+```
+
+
+```{r}
+y = employment
+yrep = posterior_predict(model_ppc, draws = 500)
+ppc_dens_overlay(y, yrep)+ggtitle("Prior predictive check")
+```
+
+```{r}
+y = employment
+yrep = posterior_predict(model, draws = 500)
+ppc_dens_overlay(y, yrep)+ggtitle("Posterior predictive check")
+```
+
+5.
+
+Using the examples from the book, try to come up with a point prediction, a linear predictor with uncertainty and the predictive distribution for new observations for a set of unobserved data. Then try to plot the uncertainty interval on top of the line (see example of code below). You should fit the model e.g. on the first 950 observations, and then try to predict the remaining 50.
+
+
+```{r}
+
+
+data %>% 
+  ggplot(aes(time, employment)) + 
+  geom_ribbon(aes(ymin = value - std,
+                  ymax = value + std),
+              fill = "steelblue2") +
+  geom_line(color = "firebrick", size = 1)
+```
+
